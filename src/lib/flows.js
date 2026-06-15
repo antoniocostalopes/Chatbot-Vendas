@@ -19,7 +19,7 @@ export const GREETING = {
 export const PRODUCT_STEP = {
   type: 'options',
   key: 'product',
-  prompt: 'Olá, eu sou a Lara! Que tipo de seguro procura?',
+  prompt: 'Olá, eu sou a Joana! Que tipo de seguro procura?',
   options: [
     { label: 'Seguro Auto', value: 'auto' },
     { label: 'Seguro Casa', value: 'home' },
@@ -121,6 +121,11 @@ const autoFlow = {
       kind: 'phone',
       prompt: 'Por último, o seu contacto telefónico?',
       placeholder: '912345678',
+      next: 'summary',
+    },
+    summary: {
+      type: 'summary',
+      prompt: 'Está quase! Confirme os seus dados antes de eu enviar a proposta.',
       next: 'done',
     },
     done: {
@@ -219,6 +224,11 @@ const homeFlow = {
       kind: 'phone',
       prompt: 'Por último, o seu contacto telefónico?',
       placeholder: '912345678',
+      next: 'summary',
+    },
+    summary: {
+      type: 'summary',
+      prompt: 'Está quase! Confirme os seus dados antes de eu enviar a proposta.',
       next: 'done',
     },
     done: {

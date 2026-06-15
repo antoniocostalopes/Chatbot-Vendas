@@ -130,7 +130,7 @@ function Hero() {
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
               <Avatar size={42} />
               <div>
-                <div className="text-[15px] font-semibold text-slate-800">Lara · Assistente</div>
+                <div className="text-[15px] font-semibold text-slate-800">Joana · Assistente</div>
                 <div className="flex items-center gap-1 text-[12px] text-slate-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> online
                 </div>
@@ -419,7 +419,7 @@ function FinalCTA() {
           Coloque o agente a vender por si
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">
-          Adicione a Lara ao seu site e comece a converter visitantes em clientes —
+          Adicione a Joana ao seu site e comece a converter visitantes em clientes —
           de forma automatizada, 24/7.
         </p>
         <button

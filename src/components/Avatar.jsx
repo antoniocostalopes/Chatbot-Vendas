@@ -1,6 +1,6 @@
 import { useId } from 'react';
 
-// Avatar "Lara" — ilustração humanizada de uma assistente (senhora),
+// Avatar "Joana" — ilustração humanizada de uma assistente (senhora),
 // auto-contida em SVG, legível desde 28px até tamanhos grandes.
 export default function Avatar({ size = 36 }) {
   const id = useId().replace(/:/g, '');
@@ -11,7 +11,7 @@ export default function Avatar({ size = 36 }) {
       height={size}
       className="shrink-0 rounded-full ring-2 ring-white shadow-sm"
       role="img"
-      aria-label="Lara, assistente"
+      aria-label="Joana, assistente"
     >
       <defs>
         <radialGradient id={`bg-${id}`} cx="50%" cy="38%" r="75%">

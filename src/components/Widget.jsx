@@ -60,7 +60,7 @@ export default function Widget({ autoOpen = true, autoOpenDelay = 1200 }) {
                 </span>
                 <div className="leading-tight">
                   <div className="flex items-center gap-1.5 text-[15px] font-semibold">
-                    Lara
+                    Joana
                     <span className="rounded-full bg-white/15 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-white/90">
                       Closr
                     </span>
@@ -101,11 +101,11 @@ export default function Widget({ autoOpen = true, autoOpenDelay = 1200 }) {
         </div>
       )}
 
-      {/* Launcher (cara da Lara) */}
+      {/* Launcher (cara da Joana) */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Fechar assistente' : 'Falar com a Lara'}
+        aria-label={open ? 'Fechar assistente' : 'Falar com a Joana'}
         className="group relative order-2 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-xl shadow-brand-500/20 ring-1 ring-neutral-200 transition hover:scale-105"
       >
         {open ? (
