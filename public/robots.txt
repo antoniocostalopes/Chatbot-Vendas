@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chatbot-vendas.vercel.app/sitemap.xml

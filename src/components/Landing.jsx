@@ -62,7 +62,7 @@ const Icon = {
 function Nav() {
   return (
     <header className="fixed inset-x-3 top-3 z-30 sm:inset-x-4 sm:top-4">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 shadow-sm backdrop-blur sm:px-6">
+      <nav aria-label="Navegação principal" className="mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 shadow-sm backdrop-blur sm:px-6">
         <a href="#top" className="flex items-center" aria-label="Closr — início">
           <Logo size={38} />
         </a>

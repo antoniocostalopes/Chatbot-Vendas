@@ -4,16 +4,24 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#3461f6" />
+    <meta name="author" content="Closr" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://chatbot-vendas.vercel.app/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <title>Closr — O seu agente de vendas personalizado</title>
+    <title>Closr — Agente de vendas com IA para o seu site | Capte leads 24/7</title>
     <meta
       name="description"
-      content="Continue a vender com o seu agente personalizado. O Closr conversa, qualifica e capta leads por si — 24/7, treinado nos seus produtos."
+      content="O Closr é um agente de vendas com IA que conversa, qualifica e capta leads no seu site 24/7, treinado nos seus produtos. Instala em minutos, sem código."
+    />
+    <meta
+      name="keywords"
+      content="agente de vendas IA, chatbot de vendas, captação de leads, assistente virtual, automação de vendas, chatbot para site, qualificação de leads"
     />
 
     <!-- Open Graph / WhatsApp / Facebook / LinkedIn -->
@@ -39,9 +47,106 @@
       content="A Joana conversa, qualifica e capta leads por si — 24/7, treinada nos seus produtos."
     />
     <meta name="twitter:image" content="https://chatbot-vendas.vercel.app/og-cover.png" />
+
+    <!-- Dados estruturados (Schema.org / JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://chatbot-vendas.vercel.app/#organization",
+            "name": "Closr",
+            "url": "https://chatbot-vendas.vercel.app/",
+            "logo": "https://chatbot-vendas.vercel.app/favicon.svg",
+            "description": "Agente de vendas com IA que conversa, qualifica e capta leads no seu site, 24/7."
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://chatbot-vendas.vercel.app/#website",
+            "url": "https://chatbot-vendas.vercel.app/",
+            "name": "Closr",
+            "inLanguage": "pt-PT",
+            "publisher": { "@id": "https://chatbot-vendas.vercel.app/#organization" }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Closr",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "url": "https://chatbot-vendas.vercel.app/",
+            "description": "Agente de vendas com IA, personalizado e treinado nos seus produtos. Conversa com cada visitante, qualifica o interesse e capta o lead — 24/7, com instalação em minutos e sem código."
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "O Closr funciona no meu site?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Sim. Basta colar uma linha de código — funciona em qualquer site (WordPress, Shopify, Wix ou código próprio), sem mexer no resto da página."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Consigo treiná-lo nos meus produtos?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Sim. O agente é treinado no seu catálogo e no tom de voz da marca, para responder e aconselhar como um vendedor da sua equipa."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Preciso de saber programar?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Não. A instalação é um copiar-colar e nós tratamos da configuração e do treino consigo."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Em que idiomas fala?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Em português e noutros idiomas, conforme o público do seu site."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Para onde vão os leads captados?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Para onde quiser — e-mail, folha de cálculo, CRM ou notificação instantânea no Slack/WhatsApp. Sempre com consentimento e em conformidade com o RGPD."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Quanto tempo demora a pôr a funcionar?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Minutos para instalar. O agente fica a postos assim que estiver treinado nos seus produtos."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <section style="max-width: 720px; margin: 40px auto; padding: 0 20px; font-family: system-ui, sans-serif">
+        <h1>Closr — o seu agente de vendas personalizado</h1>
+        <p>
+          O Closr é um agente de vendas com IA que conversa com cada visitante do
+          seu site, qualifica o interesse e capta o lead por si — 24/7, treinado
+          nos seus produtos. Instala em minutos e sem código.
+        </p>
+        <p>Ative o JavaScript para experimentar o agente ao vivo.</p>
+      </section>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
