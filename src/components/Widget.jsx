@@ -49,25 +49,49 @@ export default function Widget({ autoOpen = true, autoOpenDelay = 1200 }) {
           style={{ height: 'min(78vh, 640px)' }}
         >
           {/* Cabeçalho */}
-          <div className="flex items-center justify-between bg-brand-500 px-4 py-3 text-white">
-            <div className="flex items-center gap-2.5">
-              <Avatar size={34} />
-              <div className="leading-tight">
-                <div className="text-[15px] font-semibold">Lara · Closr</div>
-                <div className="flex items-center gap-1 text-[12px] text-brand-100">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400" /> online
+          <div className="relative overflow-hidden bg-gradient-to-br from-brand-600 to-brand-500 px-4 py-3.5 text-white">
+            {/* brilho decorativo */}
+            <div className="pointer-events-none absolute -right-6 -top-10 h-28 w-28 rounded-full bg-white/10 blur-2xl" aria-hidden />
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="relative inline-flex">
+                  <Avatar size={40} />
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-brand-600 bg-green-400" aria-hidden />
+                </span>
+                <div className="leading-tight">
+                  <div className="flex items-center gap-1.5 text-[15px] font-semibold">
+                    Lara
+                    <span className="rounded-full bg-white/15 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-white/90">
+                      Closr
+                    </span>
+                  </div>
+                  <div className="mt-0.5 text-[12px] text-brand-100">Online · responde em segundos</div>
                 </div>
               </div>
+              <div className="flex items-center gap-0.5">
+                <button
+                  onClick={() => window.dispatchEvent(new Event('reset-lara'))}
+                  aria-label="Recomeçar conversa"
+                  title="Recomeçar"
+                  className="cursor-pointer rounded-lg p-1.5 text-brand-100 transition-colors hover:bg-white/15 hover:text-white"
+                >
+                  <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 11a9 9 0 0 1 15-6.7L21 7" /><path d="M21 3v4h-4" />
+                    <path d="M21 13a9 9 0 0 1-15 6.7L3 17" /><path d="M3 21v-4h4" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="Minimizar"
+                  title="Minimizar"
+                  className="cursor-pointer rounded-lg p-1.5 text-brand-100 transition-colors hover:bg-white/15 hover:text-white"
+                >
+                  <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M5 12h14" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              aria-label="Minimizar"
-              className="rounded-lg p-1.5 text-brand-100 transition hover:bg-white/10 hover:text-white"
-            >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M5 12h14" />
-              </svg>
-            </button>
           </div>
 
           {/* Conversa */}

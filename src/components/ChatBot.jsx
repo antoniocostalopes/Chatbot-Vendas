@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Bubble from './Bubble.jsx';
 import Typing from './Typing.jsx';
 import Options from './Options.jsx';
@@ -18,15 +18,6 @@ export default function ChatBot() {
 
   const page = branch === null ? PRODUCT_STEP : FLOWS[branch].pages[pageId];
 
-  // Progresso ao longo do fluxo (0–1).
-  const progress = useMemo(() => {
-    if (finished) return 1;
-    if (branch === null) return 0.04;
-    const order = Object.keys(FLOWS[branch].pages);
-    const idx = order.indexOf(pageId);
-    return Math.min(1, (idx + 1) / order.length);
-  }, [branch, pageId, finished]);
-
   useEffect(() => {
     if (!page) return;
     setTyping(true);
@@ -42,6 +33,13 @@ export default function ChatBot() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [history, typing, finished]);
+
+  // Permite recomeçar a conversa a partir do header: window.dispatchEvent(new Event('reset-lara'))
+  useEffect(() => {
+    const onReset = () => restart();
+    window.addEventListener('reset-lara', onReset);
+    return () => window.removeEventListener('reset-lara', onReset);
+  }, []);
 
   function answer(label, value) {
     setHistory((h) => [...h, { from: 'user', text: label, key: page.key, value }]);
@@ -66,14 +64,6 @@ export default function ChatBot() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Barra de progresso */}
-      <div className="h-1 w-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)} aria-label="Progresso da conversa">
-        <div
-          className="h-full rounded-r-full bg-brand-500 transition-[width] duration-500 ease-out"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-
       <div
         ref={scrollRef}
         className="chat-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-4 py-4"
