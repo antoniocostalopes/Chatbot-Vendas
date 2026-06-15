@@ -67,15 +67,15 @@ function Nav() {
           <Logo size={38} />
         </a>
         <div className="hidden items-center gap-7 text-[15px] font-medium text-slate-600 md:flex">
+          <a href="#solucao" className="transition-colors hover:text-brand-600">Solução</a>
           <a href="#como" className="transition-colors hover:text-brand-600">Como funciona</a>
-          <a href="#produtos" className="transition-colors hover:text-brand-600">Capacidades</a>
-          <a href="#testemunhos" className="transition-colors hover:text-brand-600">Testemunhos</a>
+          <a href="#faq" className="transition-colors hover:text-brand-600">Perguntas</a>
         </div>
         <button
           onClick={openLara}
           className="cursor-pointer rounded-xl bg-brand-500 px-4 py-2 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
         >
-          Simular agora
+          Experimentar
         </button>
       </nav>
     </header>
@@ -91,36 +91,36 @@ function Hero() {
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-[13px] font-semibold text-brand-700">
-            <Icon.bolt className="h-4 w-4" /> Agente personalizado · sempre a vender
+            <Icon.bolt className="h-4 w-4" /> O vendedor que nunca dorme
           </span>
           <h1 className="mt-5 text-[2.6rem] font-bold leading-[1.08] tracking-tight text-slate-900 sm:text-6xl">
             Continue a vender com o seu{' '}
             <span className="text-brand-600">agente personalizado</span>.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
-            O Closr conversa com cada visitante, qualifica o interesse e capta
-            o lead por si — treinado nos seus produtos e disponível 24/7.
-            Veja-o em ação, ao vivo no canto do ecrã.
+            Transforme visitantes em clientes sem levantar um dedo. O Closr aborda
+            cada pessoa, percebe o que procura, aconselha como um vendedor da sua
+            equipa e capta o lead — 24/7, treinado nos <strong className="font-semibold text-slate-700">seus</strong> produtos.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <button
               onClick={openLara}
               className="group inline-flex cursor-pointer items-center gap-2 rounded-xl bg-brand-500 px-6 py-3.5 text-[16px] font-semibold text-white shadow-lg shadow-brand-500/25 transition-colors hover:bg-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
             >
-              Começar simulação
+              Experimentar agora
               <Icon.arrow className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
             </button>
             <a
-              href="#como"
+              href="#solucao"
               className="cursor-pointer rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-[16px] font-semibold text-slate-700 transition-colors hover:border-brand-300 hover:text-brand-600"
             >
-              Ver como funciona
+              Ver a solução
             </a>
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px] text-slate-500">
-            <span className="inline-flex items-center gap-1.5"><Icon.check className="h-4 w-4 text-green-500" /> Sem custos para o cliente</span>
-            <span className="inline-flex items-center gap-1.5"><Icon.check className="h-4 w-4 text-green-500" /> 100% online</span>
-            <span className="inline-flex items-center gap-1.5"><Icon.check className="h-4 w-4 text-green-500" /> Dados protegidos</span>
+            <span className="inline-flex items-center gap-1.5"><Icon.check className="h-4 w-4 text-green-500" /> Instala em minutos</span>
+            <span className="inline-flex items-center gap-1.5"><Icon.check className="h-4 w-4 text-green-500" /> Sem código</span>
+            <span className="inline-flex items-center gap-1.5"><Icon.check className="h-4 w-4 text-green-500" /> Conforme o RGPD</span>
           </div>
         </div>
 
@@ -269,6 +269,53 @@ function Problem() {
   );
 }
 
+/* ---------- Diferenciação (solução) ---------- */
+function Difference() {
+  const rows = [
+    ['Espera que cliquem em "ajuda"', 'Aborda cada visitante primeiro'],
+    ['Responde com FAQs genéricas', 'Conhece os seus produtos e aconselha'],
+    ['Recolhe uma mensagem solta', 'Qualifica e capta o lead completo'],
+    ['Deixa a venda para depois', 'Conduz à proposta na hora'],
+  ];
+  return (
+    <section id="solucao" className="px-5 py-24">
+      <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-600">A solução</span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            Não é um chatbot. É um vendedor.
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
+            Os chatbots respondem a perguntas. O Closr faz o que um bom vendedor faz —
+            aborda, aconselha, qualifica e conduz à decisão.
+          </p>
+        </div>
+
+        <div className="mt-12 overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
+          <div className="grid grid-cols-2 text-[13px] font-semibold uppercase tracking-wide">
+            <div className="bg-slate-50 px-5 py-3 text-slate-400">Chatbot tradicional</div>
+            <div className="bg-brand-500 px-5 py-3 text-white">Closr</div>
+          </div>
+          <div className="grid grid-cols-2">
+            {rows.map(([bad, good], i) => (
+              <div key={i} className="contents">
+                <div className="flex items-start gap-2.5 border-t border-slate-100 bg-white px-5 py-4 text-[15px] text-slate-500">
+                  <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                  {bad}
+                </div>
+                <div className="flex items-start gap-2.5 border-t border-brand-100 bg-brand-50/40 px-5 py-4 text-[15px] font-medium text-slate-800">
+                  <Icon.check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+                  {good}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- Como funciona ---------- */
 function Steps() {
   const steps = [
@@ -316,8 +363,11 @@ function Features() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-600">Capacidades</span>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Um agente feito à medida do seu negócio
+            Tudo o que um bom vendedor faz — automatizado
           </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
+            Treinado no seu negócio, a postos em minutos e sempre a trabalhar.
+          </p>
         </div>
         <div className="mt-14 grid gap-6 sm:grid-cols-2">
           {features.map((f) => (
@@ -410,25 +460,116 @@ function Testimonials() {
   );
 }
 
+/* ---------- Comece em minutos (instalação) ---------- */
+function Install() {
+  const steps = [
+    ['Conte-nos sobre o seu negócio', 'Partilha os seus produtos e o tom de voz da marca.'],
+    ['Treinamos o seu agente', 'O Closr aprende a aconselhar e a vender como a sua equipa.'],
+    ['Cole uma linha no seu site', 'O agente fica a vender de imediato — sem código, em qualquer plataforma.'],
+  ];
+  return (
+    <section id="comecar" className="bg-slate-50 px-5 py-24">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+        <div>
+          <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-600">Comece em minutos</span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            A funcionar hoje, não daqui a semanas
+          </h2>
+          <ol className="mt-8 space-y-6">
+            {steps.map(([t, d], i) => (
+              <li key={t} className="flex gap-4">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500 text-[15px] font-bold text-white">{i + 1}</span>
+                <div>
+                  <h3 className="text-[17px] font-semibold text-slate-900">{t}</h3>
+                  <p className="mt-1 text-[15px] leading-relaxed text-slate-600">{d}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <button
+            onClick={openLara}
+            className="mt-8 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-brand-500 px-6 py-3.5 text-[16px] font-semibold text-white shadow-sm transition-colors hover:bg-brand-600"
+          >
+            Experimentar agora
+            <Icon.arrow className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* mockup do snippet */}
+        <div className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-xl">
+          <div className="flex items-center gap-1.5 border-b border-slate-700/60 px-4 py-3">
+            <span className="h-3 w-3 rounded-full bg-red-400" />
+            <span className="h-3 w-3 rounded-full bg-amber-400" />
+            <span className="h-3 w-3 rounded-full bg-green-400" />
+            <span className="ml-2 text-[12px] text-slate-400">index.html</span>
+          </div>
+          <pre className="overflow-x-auto px-5 py-5 text-[13px] leading-relaxed text-slate-300">
+<span className="text-slate-500">&lt;!-- Cole antes de &lt;/body&gt; --&gt;</span>{'\n'}
+<span className="text-sky-300">&lt;script</span>{'\n'}  <span className="text-violet-300">src</span>=<span className="text-emerald-300">"https://cdn.closr.app/widget.js"</span>{'\n'}  <span className="text-violet-300">data-closr-id</span>=<span className="text-emerald-300">"o-seu-id"</span> <span className="text-violet-300">defer</span>{'\n'}<span className="text-sky-300">&gt;&lt;/script&gt;</span>
+          </pre>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- FAQ ---------- */
+function FAQ() {
+  const faqs = [
+    ['O Closr funciona no meu site?', 'Sim. Basta colar uma linha de código — funciona em qualquer site (WordPress, Shopify, Wix ou código próprio), sem mexer no resto da página.'],
+    ['Consigo treiná-lo nos meus produtos?', 'Sim. O agente é treinado no seu catálogo e no tom de voz da marca, para responder e aconselhar como um vendedor da sua equipa.'],
+    ['Preciso de saber programar?', 'Não. A instalação é um copiar-colar e nós tratamos da configuração e do treino consigo.'],
+    ['Em que idiomas fala?', 'Em português e noutros idiomas, conforme o público do seu site.'],
+    ['Para onde vão os leads captados?', 'Para onde quiser — e-mail, folha de cálculo, CRM ou notificação instantânea no Slack/WhatsApp. Sempre com consentimento e em conformidade com o RGPD.'],
+    ['Quanto tempo demora a pôr a funcionar?', 'Minutos para instalar. O agente fica a postos assim que estiver treinado nos seus produtos.'],
+  ];
+  return (
+    <section id="faq" className="px-5 py-24">
+      <div className="mx-auto max-w-3xl">
+        <div className="text-center">
+          <span className="text-[13px] font-semibold uppercase tracking-wider text-brand-600">Perguntas frequentes</span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            Tudo o que precisa de saber
+          </h2>
+        </div>
+        <div className="mt-10 space-y-3">
+          {faqs.map(([q, a]) => (
+            <details key={q} className="group rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm transition-colors open:border-brand-200 open:bg-brand-50/30">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[16px] font-semibold text-slate-800">
+                {q}
+                <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-brand-500 transition-transform group-open:rotate-45" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </summary>
+              <p className="mt-3 text-[15px] leading-relaxed text-slate-600">{a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- CTA final ---------- */
 function FinalCTA() {
   return (
     <section className="px-5 py-24">
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          Coloque o agente a vender por si
+          Cada visitante é uma venda à espera
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">
-          Adicione a Joana ao seu site e comece a converter visitantes em clientes —
-          de forma automatizada, 24/7.
+          Adicione a Joana ao seu site e deixe de perder quem chega interessado.
+          Experimente agora, no canto do ecrã.
         </p>
         <button
           onClick={openLara}
           className="mt-8 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-brand-500 px-8 py-4 text-[17px] font-semibold text-white shadow-lg shadow-brand-500/25 transition-colors hover:bg-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
         >
-          Ver o agente em ação
+          Experimentar o agente
           <Icon.arrow className="h-5 w-5" />
         </button>
+        <p className="mt-4 text-[13px] text-slate-400">Instala em minutos · sem código · sem compromisso</p>
       </div>
     </section>
   );
@@ -438,12 +579,19 @@ function FinalCTA() {
 function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white px-5 py-10">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 sm:flex-row sm:justify-between">
         <Logo size={34} />
-        <p className="text-[13px] text-slate-400">
-          Closr · o seu agente de vendas personalizado.
-        </p>
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[14px] font-medium text-slate-500">
+          <a href="#solucao" className="transition-colors hover:text-brand-600">Solução</a>
+          <a href="#como" className="transition-colors hover:text-brand-600">Como funciona</a>
+          <a href="#faq" className="transition-colors hover:text-brand-600">Perguntas</a>
+          <a href="#" className="transition-colors hover:text-brand-600">Privacidade</a>
+          <a href="#" className="transition-colors hover:text-brand-600">Contacto</a>
+        </nav>
       </div>
+      <p className="mx-auto mt-6 max-w-6xl text-center text-[13px] text-slate-400 sm:text-left">
+        © Closr · o seu agente de vendas personalizado.
+      </p>
     </footer>
   );
 }
@@ -455,10 +603,13 @@ export default function Landing() {
       <main>
         <Hero />
         <Problem />
+        <Difference />
         <Steps />
         <Features />
         <Stats />
+        <Install />
         <Testimonials />
+        <FAQ />
         <FinalCTA />
       </main>
       <Footer />
