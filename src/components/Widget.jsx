@@ -45,7 +45,7 @@ export default function Widget({ autoOpen = true, autoOpenDelay = 1200 }) {
       {/* Painel (abre por cima do launcher) */}
       {open && (
         <div
-          className="order-1 flex w-[min(92vw,400px)] flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-neutral3 shadow-2xl animate-fade-up"
+          className="order-1 flex w-[min(92vw,400px)] flex-col overflow-hidden rounded-3xl border border-ink-100 bg-ink-100 shadow-2xl animate-fade-up"
           style={{ height: 'min(78vh, 640px)' }}
         >
           {/* Cabeçalho */}

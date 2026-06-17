@@ -42,8 +42,8 @@ export default function Avatar({ size = 36 }) {
           fill={`url(#hair-${id})`}
         />
         {/* ombros / blusa */}
-        <path d="M12 64 C12.5 51 21 46.5 32 46.5 C43 46.5 51.5 51 52 64 Z" fill="#3461f6" />
-        <path d="M27 47 q5 5 10 0 v3 q-5 4 -10 0 Z" fill="#2f57da" />
+        <path d="M12 64 C12.5 51 21 46.5 32 46.5 C43 46.5 51.5 51 52 64 Z" fill="#ef8a2c" />
+        <path d="M27 47 q5 5 10 0 v3 q-5 4 -10 0 Z" fill="#d9722a" />
         {/* pescoço */}
         <path d="M28 40 h8 v5 c0 3.2 -8 3.2 -8 0 Z" fill="#e3a877" />
         {/* rosto */}

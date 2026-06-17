@@ -2,7 +2,7 @@ import { useId } from 'react';
 
 /* Logomark da Closr.
    Conceito: balão de conversa com um visto — a venda fecha-se na conversa
-   ("closer"). Squircle com o azul da marca. */
+   ("closer"). Squircle com o âmbar da marca. */
 export function LogoMark({ size = 40, className = '' }) {
   const uid = useId().replace(/:/g, '');
   return (
@@ -16,8 +16,8 @@ export function LogoMark({ size = 40, className = '' }) {
     >
       <defs>
         <linearGradient id={`g-${uid}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#3461f6" />
-          <stop offset="1" stopColor="#2347db" />
+          <stop offset="0" stopColor="#f59331" />
+          <stop offset="1" stopColor="#dd7016" />
         </linearGradient>
       </defs>
       <rect width="48" height="48" rx="14" fill={`url(#g-${uid})`} />
@@ -30,7 +30,7 @@ export function LogoMark({ size = 40, className = '' }) {
       <path
         d="M18.5 22.5 l4 4 l7.5 -8"
         fill="none"
-        stroke="#2347db"
+        stroke="#c2641a"
         strokeWidth="3.4"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -46,8 +46,8 @@ export default function Logo({ size = 38, showWordmark = true, className = '' })
       <LogoMark size={size} />
       {showWordmark && (
         <span className="flex flex-col leading-none">
-          <span className="text-[19px] font-bold tracking-tight text-slate-900">Closr</span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-500">
+          <span className="font-display text-[19px] font-extrabold tracking-tight text-ink-900">Closr</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-600">
             Agente de Vendas
           </span>
         </span>

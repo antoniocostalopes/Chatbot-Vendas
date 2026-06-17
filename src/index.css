@@ -8,11 +8,31 @@ body,
   height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+  /* compensa a navbar fixa ao saltar para âncoras */
+  scroll-padding-top: 6rem;
+}
+
 body {
   margin: 0;
-  background:
-    radial-gradient(1200px 600px at 50% -10%, #e9f0ff 0%, transparent 60%),
-    #f4f5f7;
+  font-family: '"Hanken Grotesk"', system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: oklch(0.255 0.018 66);
+  background: oklch(1 0 0);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings com voz: grotesque de display, tracking apertado e linhas equilibradas */
+h1,
+h2,
+h3 {
+  font-family: '"Schibsted Grotesk"', '"Hanken Grotesk"', system-ui, sans-serif;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 /* Scrollbar discreta para a área de conversa */
@@ -34,6 +54,9 @@ body {
 
 /* Respeitar preferência de movimento reduzido */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
