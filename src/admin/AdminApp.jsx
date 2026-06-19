@@ -81,8 +81,8 @@ function NavItem({ to, end, icon, children, onClick }) {
   );
 }
 
-function GroupLabel({ children }) {
-  return <div className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-white/35">{children}</div>;
+function GroupLabel({ children, first }) {
+  return <div className={`px-3 pb-1 ${first ? 'pt-1' : 'pt-5'} text-[11px] font-semibold uppercase tracking-wider text-white/35`}>{children}</div>;
 }
 
 function SidebarContent({ isPlatformAdmin, user, onNavigate }) {
@@ -98,15 +98,15 @@ function SidebarContent({ isPlatformAdmin, user, onNavigate }) {
 
   return (
     <div className="flex h-full flex-col">
-      <Link to={home} onClick={onNavigate} className="flex items-center px-2 py-2">
-        <img src="/kyvo-logo-white.png" alt="Kyvo" className="h-8 w-auto select-none" draggable={false} />
+      <Link to={home} onClick={onNavigate} className="flex items-center justify-center px-2 py-2">
+        <img src="/kyvo-wordmark-white.png" alt="Kyvo" className="h-8 w-auto select-none" draggable={false} />
       </Link>
 
-      <nav className="mt-4 flex-1 overflow-y-auto">
+      <nav className="mt-3 flex-1 overflow-y-auto">
         {isPlatformAdmin ? (
           // Gestor da plataforma: controla o negócio; não cria agentes próprios.
           <>
-            <GroupLabel>Negócio</GroupLabel>
+            <GroupLabel first>Negócio</GroupLabel>
             <Link to="/admin/plataforma" onClick={onNavigate} className={platCls(onPlat && !pv)}><IconChart />Visão geral</Link>
             <Link to="/admin/plataforma?view=clientes" onClick={onNavigate} className={platCls(onPlat && pv === 'clientes')}><IconUsers />Clientes</Link>
             <Link to="/admin/plataforma?view=agentes" onClick={onNavigate} className={platCls(onPlat && pv === 'agentes')}><IconGrid />Agentes (todos)</Link>
@@ -118,7 +118,7 @@ function SidebarContent({ isPlatformAdmin, user, onNavigate }) {
         ) : (
           // Cliente: cria e gere os seus agentes.
           <>
-            <GroupLabel>Principal</GroupLabel>
+            <GroupLabel first>Principal</GroupLabel>
             <NavItem to="/admin/painel" icon={<IconChart />} onClick={onNavigate}>Visão geral</NavItem>
             <NavItem to="/admin/agentes" icon={<IconBot />} onClick={onNavigate}>Agentes</NavItem>
             <NavItem to="/admin/leads" icon={<IconLeads />} onClick={onNavigate}>Leads</NavItem>

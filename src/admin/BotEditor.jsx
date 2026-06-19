@@ -4,7 +4,6 @@ import { useAuth } from './useAuth.js';
 import {
   getBot, updateBot, deleteBot,
   listKnowledge, addKnowledge, updateKnowledge, deleteKnowledge, importKnowledgeUrl,
-  getAccount, updateAccount,
 } from '../lib/api.js';
 import { extractFileText, ACCEPTED_FILES } from './extractFile.js';
 import AiChat from '../components/AiChat.jsx';
@@ -88,64 +87,6 @@ export default function BotEditor() {
 }
 
 // ── Configuração ────────────────────────────────────────────────────────────
-// Aviso/configuração da chave OpenAI dentro do editor (modo IA): é aqui que o
-// utilizador espera precisar dela "para o chatbot usar os recursos".
-function OpenAiKeyNotice({ token }) {
-  const [status, setStatus] = useState(null);
-  const [apiKey, setApiKey] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
-
-  useEffect(() => {
-    let alive = true;
-    getAccount(token).then(({ profile }) => { if (alive) setStatus(profile); }).catch(() => { if (alive) setStatus({}); });
-    return () => { alive = false; };
-  }, [token]);
-
-  async function save() {
-    const k = apiKey.trim();
-    if (!k.startsWith('sk-')) { setErr('A chave deve começar por "sk-".'); return; }
-    setBusy(true); setErr('');
-    try {
-      const { profile } = await updateAccount(token, { openai_api_key: k });
-      setStatus((s) => ({ ...(s || {}), has_openai_key: true, openai_key_hint: profile?.openai_key_hint }));
-      setApiKey('');
-    } catch (e) { setErr(e.message); } finally { setBusy(false); }
-  }
-
-  if (status === null) return null;
-
-  if (status.has_openai_key) {
-    return (
-      <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-        <p className="text-[13px] text-emerald-800">
-          <b>Chave OpenAI ligada</b>{status.openai_key_hint ? ` (${status.openai_key_hint})` : ''} — este agente já pode responder com IA.
-        </p>
-        <Link to="/admin/conta" className="shrink-0 text-[12px] font-medium text-emerald-700 hover:underline">Gerir</Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-      <div className="flex items-start gap-2.5">
-        <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /></svg>
-        <div className="flex-1">
-          <p className="text-[13px] font-semibold text-amber-900">Falta a tua chave OpenAI</p>
-          <p className="mt-0.5 text-[12.5px] text-amber-800">
-            No modo IA o agente usa a <b>tua</b> chave OpenAI para responder — sem ela não funciona. Cola-a aqui (guardada cifrada) ou gere em <Link to="/admin/conta" className="underline">Conta</Link>.
-          </p>
-          <div className="mt-2.5 flex gap-2">
-            <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-…" autoComplete="off" className="flex-1 rounded-lg border border-amber-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-amber-500" />
-            <button onClick={save} disabled={busy || !apiKey.trim()} className="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50">{busy ? 'A guardar…' : 'Guardar'}</button>
-          </div>
-          {err && <p className="mt-1.5 text-[12px] text-red-600">{err}</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ConfigTab({ token, bot, onChange, onDeleted }) {
   const [form, setForm] = useState({
     name: bot.name, greeting: bot.greeting, persona: bot.persona,
@@ -217,7 +158,6 @@ function ConfigTab({ token, bot, onChange, onDeleted }) {
 
   return (
     <div className="max-w-2xl space-y-4">
-      {!isSearch && <OpenAiKeyNotice token={token} />}
       {/* Modo do agente */}
       <div className="rounded-2xl border border-ink-100 bg-white p-4">
         <span className="text-[13px] font-medium text-ink-600">Modo do agente</span>

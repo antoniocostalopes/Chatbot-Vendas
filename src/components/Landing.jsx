@@ -143,9 +143,9 @@ function Nav() {
       >
         <a href="#top" className="flex items-center" aria-label="Kyvo, início">
           <img
-            src={onDark ? '/kyvo-logo-white.png' : '/kyvo-logo.png'}
+            src={onDark ? '/kyvo-wordmark-white.png' : '/kyvo-wordmark.png'}
             alt="Kyvo"
-            className="h-[34px] w-auto select-none"
+            className="h-7 w-auto select-none"
             draggable={false}
           />
         </a>
@@ -896,7 +896,7 @@ function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.7fr_1fr_1fr_1fr]">
           {/* Marca */}
           <div className="max-w-xs">
-            <img src="/kyvo-logo-white.png" alt="Kyvo" className="h-8 w-auto select-none" draggable={false} />
+            <img src="/kyvo-wordmark-white.png" alt="Kyvo" className="h-6 w-auto select-none" draggable={false} />
             <p className="mt-4 text-[14.5px] leading-relaxed text-ink-300">
               O agente de vendas com IA que responde a cada visitante e capta os contactos por si, 24/7.
             </p>
@@ -984,7 +984,7 @@ function Showcase() {
             <div className="grid sm:grid-cols-[160px_1fr]">
               {/* sidebar */}
               <div className="hidden border-r border-ink-100 p-3 sm:block">
-                <img src="/kyvo-logo.png" alt="Kyvo" className="mb-3 h-5 w-auto pl-1" />
+                <img src="/kyvo-wordmark.png" alt="Kyvo" className="mb-3 h-4 w-auto pl-1" />
                 {['Agentes', 'Leads', 'Conversas', 'Conta'].map((x, i) => (
                   <div key={x} className={`rounded-lg px-2.5 py-1.5 text-[12.5px] ${i === 1 ? 'bg-brand-50 font-semibold text-brand-700' : 'text-ink-500'}`}>{x}</div>
                 ))}
