@@ -93,7 +93,7 @@ export const getConversation = (token, id) => request(`/api/conversations/${id}`
 export const deleteConversation = (token, id) => request(`/api/conversations/${id}`, { method: 'DELETE', token });
 
 // ── Área do cliente (a própria conta) ───────────────────────────────────────
-// (o perfil/role é lido direto do Supabase no AdminApp; aqui só escritas)
+export const getAccount = (token) => request('/api/account', { token });
 export const updateAccount = (token, updates) => request('/api/account', { method: 'PATCH', body: updates, token });
 export const deleteAccount = (token) => request('/api/account', { method: 'DELETE', token });
 

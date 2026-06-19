@@ -24,6 +24,8 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const body = await readJson(req);
     const insert = { ...pick(body), owner_id: user.id };
+    // Saudação por omissão da marca (não depender do default da coluna na BD).
+    if (!insert.greeting) insert.greeting = 'Olá! Sou o Kyvo. Em que posso ajudar?';
     const { data, error } = await supabaseAdmin.from('bots').insert(insert).select().single();
     if (error) return json(res, 500, { error: 'Erro a criar o bot.', detail: error.message });
     return json(res, 201, { bot: data });

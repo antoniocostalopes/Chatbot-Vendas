@@ -7,6 +7,9 @@ import Login from './Login.jsx';
 import BotsList from './BotsList.jsx';
 import BotEditor from './BotEditor.jsx';
 import AccountPage from './AccountPage.jsx';
+import DashboardPage from './DashboardPage.jsx';
+import LeadsPage from './LeadsPage.jsx';
+import ConversationsPage from './ConversationsPage.jsx';
 import PlatformPage from './PlatformPage.jsx';
 import ClientDetail from './ClientDetail.jsx';
 
@@ -32,7 +35,7 @@ function RedirectToAgente() {
 // Página inicial conforme o papel: gestor → Negócio; cliente → Agentes.
 function HomeRedirect({ isPlatformAdmin, ready }) {
   if (!ready) return <div className="text-ink-400">A carregar…</div>;
-  return <Navigate to={isPlatformAdmin ? '/admin/plataforma' : '/admin/agentes'} replace />;
+  return <Navigate to={isPlatformAdmin ? '/admin/plataforma' : '/admin/painel'} replace />;
 }
 
 // Garante o agente do site (cria se não existir) e abre o seu editor.
@@ -57,6 +60,8 @@ const IconChart = () => (<svg viewBox="0 0 24 24" className={ic} fill="none" str
 const IconUsers = () => (<svg viewBox="0 0 24 24" className={ic} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3.5" /><path d="M3 20a6 6 0 0 1 12 0" /><path d="M16 5a3.5 3.5 0 0 1 0 7M18 20a6 6 0 0 0-3-5.2" /></svg>);
 const IconGrid = () => (<svg viewBox="0 0 24 24" className={ic} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>);
 const IconGlobe = () => (<svg viewBox="0 0 24 24" className={ic} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18Z" /></svg>);
+const IconLeads = () => (<svg viewBox="0 0 24 24" className={ic} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>);
+const IconChats = () => (<svg viewBox="0 0 24 24" className={ic} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3a8.5 8.5 0 0 1 8.5 8.5Z" /></svg>);
 
 function NavItem({ to, end, icon, children, onClick }) {
   return (
@@ -66,7 +71,7 @@ function NavItem({ to, end, icon, children, onClick }) {
       onClick={onClick}
       className={({ isActive }) =>
         `flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition-colors ${
-          isActive ? 'bg-brand-50 text-brand-700' : 'text-ink-600 hover:bg-ink-50 hover:text-ink-900'
+          isActive ? 'bg-brand-500 text-white shadow-glow-sm' : 'text-ink-200 hover:bg-white/10 hover:text-white'
         }`
       }
     >
@@ -77,7 +82,7 @@ function NavItem({ to, end, icon, children, onClick }) {
 }
 
 function GroupLabel({ children }) {
-  return <div className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-ink-400">{children}</div>;
+  return <div className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-white/35">{children}</div>;
 }
 
 function SidebarContent({ isPlatformAdmin, user, onNavigate }) {
@@ -87,15 +92,14 @@ function SidebarContent({ isPlatformAdmin, user, onNavigate }) {
   const pv = new URLSearchParams(loc.search).get('view');
   const platCls = (active) =>
     `flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition-colors ${
-      active ? 'bg-brand-50 text-brand-700' : 'text-ink-600 hover:bg-ink-50 hover:text-ink-900'
+      active ? 'bg-brand-500 text-white shadow-glow-sm' : 'text-ink-200 hover:bg-white/10 hover:text-white'
     }`;
-  const home = isPlatformAdmin ? '/admin/plataforma' : '/admin/agentes';
+  const home = isPlatformAdmin ? '/admin/plataforma' : '/admin/painel';
 
   return (
     <div className="flex h-full flex-col">
-      <Link to={home} onClick={onNavigate} className="flex items-center gap-2 px-3 py-1">
-        <img src="/kyvo-logo.png" alt="Kyvo" className="h-7 w-auto select-none" draggable={false} />
-        <span className="text-[12px] font-medium text-ink-400">{isPlatformAdmin ? 'negócio' : 'painel'}</span>
+      <Link to={home} onClick={onNavigate} className="flex items-center px-2 py-2">
+        <img src="/kyvo-logo-white.png" alt="Kyvo" className="h-8 w-auto select-none" draggable={false} />
       </Link>
 
       <nav className="mt-4 flex-1 overflow-y-auto">
@@ -115,21 +119,30 @@ function SidebarContent({ isPlatformAdmin, user, onNavigate }) {
           // Cliente: cria e gere os seus agentes.
           <>
             <GroupLabel>Principal</GroupLabel>
+            <NavItem to="/admin/painel" icon={<IconChart />} onClick={onNavigate}>Visão geral</NavItem>
             <NavItem to="/admin/agentes" icon={<IconBot />} onClick={onNavigate}>Agentes</NavItem>
+            <NavItem to="/admin/leads" icon={<IconLeads />} onClick={onNavigate}>Leads</NavItem>
+            <NavItem to="/admin/conversas" icon={<IconChats />} onClick={onNavigate}>Conversas</NavItem>
             <NavItem to="/admin/conta" icon={<IconUser />} onClick={onNavigate}>Conta</NavItem>
           </>
         )}
       </nav>
 
-      <div className="border-t border-ink-100 pt-3">
-        {isPlatformAdmin && (
-          <span className="mb-2 ml-3 inline-block rounded-full bg-ink-900 px-2 py-0.5 text-[11px] font-medium text-white">Gestor</span>
-        )}
-        <div className="truncate px-3 text-[12px] text-ink-500">{user.email}</div>
+      <div className="border-t border-white/10 pt-3">
+        <div className="flex items-center gap-2.5 px-1.5 py-1.5">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-grad-brand text-[13px] font-semibold text-white ring-1 ring-white/15">
+            {(user.email || '?').charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[13px] font-medium text-white">{user.email}</div>
+            <div className="text-[11px] text-white/50">{isPlatformAdmin ? 'Gestor da plataforma' : 'Conta de cliente'}</div>
+          </div>
+        </div>
         <button
           onClick={() => supabase.auth.signOut()}
-          className="mt-2 w-full rounded-xl border border-ink-200 px-3 py-2 text-[13px] font-medium text-ink-700 transition-colors hover:bg-ink-50"
+          className="mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-[13px] font-medium text-ink-200 transition-colors hover:bg-white/10 hover:text-white"
         >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5M21 12H9" /></svg>
           Sair
         </button>
       </div>
@@ -177,7 +190,7 @@ export default function AdminApp() {
   return (
     <div className="min-h-screen bg-surface">
       {/* Sidebar fixa (desktop) */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-ink-100 bg-white p-4 md:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-ink-800 bg-ink-900 p-4 md:flex">
         <SidebarContent isPlatformAdmin={isPlatformAdmin} user={user} />
       </aside>
 
@@ -195,19 +208,31 @@ export default function AdminApp() {
       {menuOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-ink-900/30" onClick={() => setMenuOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-64 bg-white p-4 shadow-xl">
+          <div className="absolute inset-y-0 left-0 w-64 bg-ink-900 p-4 shadow-xl">
             <SidebarContent isPlatformAdmin={isPlatformAdmin} user={user} onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>
       )}
 
-      {/* Conteúdo */}
+      {/* Conteúdo: cada página ocupa toda a área ao lado do sidebar (como as
+          Conversas). Conversas gere o próprio scroll; as restantes têm padding
+          e scroll vertical interno. */}
       <main className="md:pl-60">
-        <div className="mx-auto max-w-5xl px-5 py-8" key={location.pathname}>
+        <div
+          key={location.pathname}
+          className={
+            location.pathname === '/admin/conversas'
+              ? 'h-[calc(100dvh-3.25rem)] overflow-hidden md:h-screen'
+              : 'h-[calc(100dvh-3.25rem)] overflow-y-auto px-5 py-8 md:h-screen lg:px-8'
+          }
+        >
           <Routes>
             <Route index element={<HomeRedirect isPlatformAdmin={isPlatformAdmin} ready={profileLoaded} />} />
             <Route path="agentes" element={<BotsList />} />
             <Route path="agentes/:id" element={<BotEditor />} />
+            <Route path="painel" element={<DashboardPage />} />
+            <Route path="leads" element={<LeadsPage />} />
+            <Route path="conversas" element={<ConversationsPage />} />
             <Route path="conta" element={<AccountPage profile={profile} onProfile={setProfile} />} />
             <Route path="agente-site" element={<SiteAgentRedirect />} />
             <Route path="plataforma" element={<PlatformPage isAdmin={isPlatformAdmin} ready={profileLoaded} />} />

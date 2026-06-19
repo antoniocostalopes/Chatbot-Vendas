@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './useAuth.js';
 import {
   getBot, updateBot, deleteBot,
   listKnowledge, addKnowledge, updateKnowledge, deleteKnowledge, importKnowledgeUrl,
-  listLeads, createLead, updateLead, deleteLead,
-  listConversations, getConversation, deleteConversation,
+  getAccount, updateAccount,
 } from '../lib/api.js';
 import { extractFileText, ACCEPTED_FILES } from './extractFile.js';
 import AiChat from '../components/AiChat.jsx';
@@ -26,8 +25,6 @@ const TABS = [
   { id: 'config', label: 'Configuração' },
   { id: 'knowledge', label: 'Conhecimento' },
   { id: 'test', label: 'Testar' },
-  { id: 'leads', label: 'Leads' },
-  { id: 'conversations', label: 'Conversas' },
   { id: 'install', label: 'Instalar' },
 ];
 
@@ -54,6 +51,18 @@ export default function BotEditor() {
         <code className="rounded bg-ink-50 px-2 py-1 text-[12px] text-ink-600">{bot.public_id}</code>
       </div>
 
+      {/* Atalhos para os resultados deste agente (vivem nas páginas globais). */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link to={`/admin/leads?agente=${bot.id}`} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-[13px] font-medium text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-600">
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
+          Leads deste agente
+        </Link>
+        <Link to={`/admin/conversas?agente=${bot.id}`} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-[13px] font-medium text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-600">
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3a8.5 8.5 0 0 1 8.5 8.5Z" /></svg>
+          Conversas deste agente
+        </Link>
+      </div>
+
       <div className="mt-5 flex gap-1 border-b border-ink-100">
         {TABS.map((t) => (
           <button
@@ -72,8 +81,6 @@ export default function BotEditor() {
         {tab === 'config' && <ConfigTab token={token} bot={bot} onChange={setBot} onDeleted={() => navigate('/admin/agentes')} />}
         {tab === 'knowledge' && <KnowledgeTab token={token} botId={bot.id} />}
         {tab === 'test' && <PlaygroundTab token={token} bot={bot} />}
-        {tab === 'leads' && <LeadsTab token={token} botId={bot.id} />}
-        {tab === 'conversations' && <ConversationsTab token={token} botId={bot.id} />}
         {tab === 'install' && <InstallTab bot={bot} />}
       </div>
     </div>
@@ -81,6 +88,64 @@ export default function BotEditor() {
 }
 
 // ── Configuração ────────────────────────────────────────────────────────────
+// Aviso/configuração da chave OpenAI dentro do editor (modo IA): é aqui que o
+// utilizador espera precisar dela "para o chatbot usar os recursos".
+function OpenAiKeyNotice({ token }) {
+  const [status, setStatus] = useState(null);
+  const [apiKey, setApiKey] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    getAccount(token).then(({ profile }) => { if (alive) setStatus(profile); }).catch(() => { if (alive) setStatus({}); });
+    return () => { alive = false; };
+  }, [token]);
+
+  async function save() {
+    const k = apiKey.trim();
+    if (!k.startsWith('sk-')) { setErr('A chave deve começar por "sk-".'); return; }
+    setBusy(true); setErr('');
+    try {
+      const { profile } = await updateAccount(token, { openai_api_key: k });
+      setStatus((s) => ({ ...(s || {}), has_openai_key: true, openai_key_hint: profile?.openai_key_hint }));
+      setApiKey('');
+    } catch (e) { setErr(e.message); } finally { setBusy(false); }
+  }
+
+  if (status === null) return null;
+
+  if (status.has_openai_key) {
+    return (
+      <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+        <p className="text-[13px] text-emerald-800">
+          <b>Chave OpenAI ligada</b>{status.openai_key_hint ? ` (${status.openai_key_hint})` : ''} — este agente já pode responder com IA.
+        </p>
+        <Link to="/admin/conta" className="shrink-0 text-[12px] font-medium text-emerald-700 hover:underline">Gerir</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+      <div className="flex items-start gap-2.5">
+        <svg viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /></svg>
+        <div className="flex-1">
+          <p className="text-[13px] font-semibold text-amber-900">Falta a tua chave OpenAI</p>
+          <p className="mt-0.5 text-[12.5px] text-amber-800">
+            No modo IA o agente usa a <b>tua</b> chave OpenAI para responder — sem ela não funciona. Cola-a aqui (guardada cifrada) ou gere em <Link to="/admin/conta" className="underline">Conta</Link>.
+          </p>
+          <div className="mt-2.5 flex gap-2">
+            <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-…" autoComplete="off" className="flex-1 rounded-lg border border-amber-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-amber-500" />
+            <button onClick={save} disabled={busy || !apiKey.trim()} className="shrink-0 rounded-lg bg-amber-600 px-4 py-2 text-[13px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50">{busy ? 'A guardar…' : 'Guardar'}</button>
+          </div>
+          {err && <p className="mt-1.5 text-[12px] text-red-600">{err}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ConfigTab({ token, bot, onChange, onDeleted }) {
   const [form, setForm] = useState({
     name: bot.name, greeting: bot.greeting, persona: bot.persona,
@@ -152,6 +217,7 @@ function ConfigTab({ token, bot, onChange, onDeleted }) {
 
   return (
     <div className="max-w-2xl space-y-4">
+      {!isSearch && <OpenAiKeyNotice token={token} />}
       {/* Modo do agente */}
       <div className="rounded-2xl border border-ink-100 bg-white p-4">
         <span className="text-[13px] font-medium text-ink-600">Modo do agente</span>
@@ -446,192 +512,6 @@ function PlaygroundTab({ token, bot }) {
       </p>
       <div className="overflow-hidden rounded-2xl border border-ink-100 bg-ink-100" style={{ height: 'min(70vh, 560px)' }}>
         <AiChat key={bot.id} publicId={bot.public_id} greeting={bot.greeting} authToken={token} />
-      </div>
-    </div>
-  );
-}
-
-// ── Leads ───────────────────────────────────────────────────────────────────
-function LeadsTab({ token, botId }) {
-  const [leads, setLeads] = useState(null);
-  const [editId, setEditId] = useState(null);
-  const [draft, setDraft] = useState({});
-  const [adding, setAdding] = useState(false);
-  const [newLead, setNewLead] = useState({ name: '', email: '', phone: '', notes: '' });
-
-  const emptyNew = { name: '', email: '', phone: '', notes: '' };
-
-  async function refresh() {
-    try { const { leads } = await listLeads(token, botId); setLeads(leads); } catch { setLeads([]); }
-  }
-  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [token, botId]);
-
-  async function remove(id) {
-    if (!confirm('Apagar este lead?')) return;
-    setLeads((ls) => ls.filter((l) => l.id !== id));
-    try { await deleteLead(token, id); } catch (e) { alert(e.message); refresh(); }
-  }
-
-  function startEdit(l) { setEditId(l.id); setDraft({ name: l.name || '', email: l.email || '', phone: l.phone || '', notes: l.notes || '' }); }
-  async function saveEdit() {
-    try {
-      const { lead } = await updateLead(token, editId, draft);
-      setLeads((ls) => ls.map((l) => (l.id === editId ? lead : l)));
-      setEditId(null);
-    } catch (e) { alert(e.message); }
-  }
-
-  async function create() {
-    if (!newLead.email.trim() && !newLead.phone.trim()) { alert('Indica pelo menos um email ou telefone.'); return; }
-    try {
-      const { lead } = await createLead(token, { bot_id: botId, ...newLead });
-      setLeads((ls) => [lead, ...(ls || [])]);
-      setNewLead(emptyNew);
-      setAdding(false);
-    } catch (e) { alert(e.message); }
-  }
-
-  const cell = 'w-full rounded-lg border border-ink-200 px-2 py-1 text-[13px] outline-none focus:border-brand-500';
-  const set = (k) => (e) => setDraft({ ...draft, [k]: e.target.value });
-  const setNew = (k) => (e) => setNewLead({ ...newLead, [k]: e.target.value });
-
-  return (
-    <div>
-      {/* Barra de ações + formulário de novo lead */}
-      <div className="mb-4">
-        {!adding ? (
-          <button onClick={() => setAdding(true)} className="rounded-xl bg-brand-500 px-4 py-2 font-semibold text-white hover:bg-brand-600">
-            + Novo lead
-          </button>
-        ) : (
-          <div className="rounded-2xl border border-ink-100 bg-white p-4">
-            <h3 className="text-[14px] font-semibold text-ink-900">Novo lead (manual)</h3>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <input value={newLead.name} onChange={setNew('name')} placeholder="Nome" className={cell} />
-              <input value={newLead.email} onChange={setNew('email')} placeholder="Email" className={cell} />
-              <input value={newLead.phone} onChange={setNew('phone')} placeholder="Telefone" className={cell} />
-              <input value={newLead.notes} onChange={setNew('notes')} placeholder="Interesse / nota" className={cell} />
-            </div>
-            <div className="mt-3 flex gap-2">
-              <button onClick={create} className="rounded-lg bg-brand-500 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-600">Adicionar</button>
-              <button onClick={() => { setAdding(false); setNewLead(emptyNew); }} className="rounded-lg border border-ink-200 px-4 py-2 text-[13px] text-ink-600 hover:bg-ink-50">Cancelar</button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {leads === null && <p className="text-ink-400">A carregar…</p>}
-      {leads && !leads.length && <p className="text-ink-500">Ainda não há leads para este agente.</p>}
-
-      {leads && leads.length > 0 && (
-      <div className="overflow-x-auto rounded-2xl border border-ink-100 bg-white">
-      <table className="w-full text-left text-[13px]">
-        <thead className="border-b border-ink-100 text-ink-500">
-          <tr>
-            <th className="px-4 py-3 font-medium">Nome</th>
-            <th className="px-4 py-3 font-medium">Email</th>
-            <th className="px-4 py-3 font-medium">Telefone</th>
-            <th className="px-4 py-3 font-medium">Interesse</th>
-            <th className="px-4 py-3 font-medium">Data</th>
-            <th className="px-4 py-3" />
-          </tr>
-        </thead>
-        <tbody>
-          {leads.map((l) => (
-            <tr key={l.id} className="border-b border-ink-50 last:border-0">
-              {editId === l.id ? (
-                <>
-                  <td className="px-4 py-2"><input value={draft.name} onChange={set('name')} className={cell} /></td>
-                  <td className="px-4 py-2"><input value={draft.email} onChange={set('email')} className={cell} /></td>
-                  <td className="px-4 py-2"><input value={draft.phone} onChange={set('phone')} className={cell} /></td>
-                  <td className="px-4 py-2"><input value={draft.notes} onChange={set('notes')} className={cell} /></td>
-                  <td className="px-4 py-2 text-ink-400">{new Date(l.created_at).toLocaleDateString('pt-PT')}</td>
-                  <td className="px-4 py-2 text-right">
-                    <button onClick={saveEdit} className="text-[12px] text-brand-600 hover:underline">Guardar</button>
-                    <button onClick={() => setEditId(null)} className="ml-2 text-[12px] text-ink-400 hover:underline">Cancelar</button>
-                  </td>
-                </>
-              ) : (
-                <>
-                  <td className="px-4 py-3 text-ink-900">{l.name || '—'}</td>
-                  <td className="px-4 py-3 text-ink-700">{l.email || '—'}</td>
-                  <td className="px-4 py-3 text-ink-700">{l.phone || '—'}</td>
-                  <td className="px-4 py-3 text-ink-600">{l.notes || '—'}</td>
-                  <td className="px-4 py-3 text-ink-400">{new Date(l.created_at).toLocaleString('pt-PT')}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button onClick={() => startEdit(l)} className="text-[12px] text-ink-500 hover:underline">Editar</button>
-                    <button onClick={() => remove(l.id)} className="ml-2 text-[12px] text-red-500 hover:underline">Apagar</button>
-                  </td>
-                </>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-      )}
-    </div>
-  );
-}
-
-// ── Conversas ───────────────────────────────────────────────────────────────
-function ConversationsTab({ token, botId }) {
-  const [convs, setConvs] = useState(null);
-  const [open, setOpen] = useState(null);    // conversa selecionada
-  const [messages, setMessages] = useState(null);
-
-  async function refresh() {
-    try { const { conversations } = await listConversations(token, botId); setConvs(conversations); }
-    catch { setConvs([]); }
-  }
-  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [token, botId]);
-
-  async function view(conv) {
-    setOpen(conv); setMessages(null);
-    try { const { messages } = await getConversation(token, conv.id); setMessages(messages); }
-    catch { setMessages([]); }
-  }
-
-  async function remove(id) {
-    if (!confirm('Apagar esta conversa?')) return;
-    setConvs((cs) => cs.filter((c) => c.id !== id));
-    if (open?.id === id) setOpen(null);
-    try { await deleteConversation(token, id); } catch (e) { alert(e.message); refresh(); }
-  }
-
-  if (convs === null) return <p className="text-ink-400">A carregar…</p>;
-  if (!convs.length) return <p className="text-ink-500">Ainda não há conversas com este agente.</p>;
-
-  return (
-    <div className="grid gap-4 md:grid-cols-[280px_1fr]">
-      <div className="space-y-2">
-        {convs.map((c) => (
-          <div
-            key={c.id}
-            className={`rounded-xl border p-3 transition-colors ${open?.id === c.id ? 'border-brand-400 bg-brand-50/40' : 'border-ink-100 bg-white hover:border-brand-200'}`}
-          >
-            <button onClick={() => view(c)} className="block w-full text-left">
-              <div className="text-[13px] font-medium text-ink-800">{new Date(c.created_at).toLocaleString('pt-PT')}</div>
-              <div className="text-[12px] text-ink-400">{c.message_count} mensagens</div>
-            </button>
-            <button onClick={() => remove(c.id)} className="mt-1 text-[11px] text-red-500 hover:underline">Apagar</button>
-          </div>
-        ))}
-      </div>
-
-      <div className="rounded-2xl border border-ink-100 bg-white p-4">
-        {!open && <p className="text-ink-400">Seleciona uma conversa para a ler.</p>}
-        {open && messages === null && <p className="text-ink-400">A carregar…</p>}
-        {open && messages && (
-          <div className="flex flex-col gap-2">
-            {messages.map((m) => (
-              <div key={m.id} className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-[13.5px] ${m.role === 'assistant' ? 'self-start bg-ink-50 text-ink-800' : 'self-end bg-brand-500 text-white'}`}>
-                {m.content}
-              </div>
-            ))}
-            {!messages.length && <p className="text-ink-400">Sem mensagens.</p>}
-          </div>
-        )}
       </div>
     </div>
   );

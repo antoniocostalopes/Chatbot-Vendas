@@ -19,19 +19,30 @@ export default async function handler(req, res) {
 
   const { data, error } = await supabaseAdmin
     .from('conversations')
-    .select('id, bot_id, visitor_id, created_at, messages(count)')
+    .select('id, bot_id, visitor_id, created_at, bot:bots(id, name, public_id), messages(content, role, created_at)')
     .in('bot_id', ids)
     .order('created_at', { ascending: false })
+    .order('created_at', { referencedTable: 'messages', ascending: false })
     .limit(500);
 
   if (error) return json(res, 500, { error: 'Erro a carregar conversas.' });
 
-  const conversations = (data || []).map((c) => ({
-    id: c.id,
-    bot_id: c.bot_id,
-    visitor_id: c.visitor_id,
-    created_at: c.created_at,
-    message_count: c.messages?.[0]?.count ?? 0,
-  }));
+  const conversations = (data || []).map((c) => {
+    const msgs = c.messages || [];
+    const last = msgs[0]; // ordenadas desc → a mais recente primeiro
+    return {
+      id: c.id,
+      bot_id: c.bot_id,
+      bot: c.bot || null,
+      visitor_id: c.visitor_id,
+      created_at: c.created_at,
+      message_count: msgs.length,
+      last_message: last?.content || '',
+      last_role: last?.role || null,
+      last_at: last?.created_at || c.created_at,
+    };
+  });
+  // Ordena por atividade mais recente (estilo caixa de entrada).
+  conversations.sort((a, b) => new Date(b.last_at) - new Date(a.last_at));
   return json(res, 200, { conversations });
 }

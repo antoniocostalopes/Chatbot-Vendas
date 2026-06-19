@@ -22,10 +22,11 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Test artifacts
+# Test artifacts / scripts temporários
 _vw/
 vw*.cjs
 verify*.cjs
+_*.mjs
 
 # Imagens-fonte na raiz (originais; as versões servidas estão em public/)
 /Kyvo_logotipo.png

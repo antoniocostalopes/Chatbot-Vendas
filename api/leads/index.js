@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     if (!ids.length) return json(res, 200, { leads: [] });
     const { data, error } = await supabaseAdmin
       .from('leads')
-      .select('*')
+      .select('*, bot:bots(id, name, public_id)')
       .in('bot_id', ids)
       .order('created_at', { ascending: false })
       .limit(500);

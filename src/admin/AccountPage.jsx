@@ -8,7 +8,7 @@ const inputCls = 'mt-1 w-full rounded-xl border border-ink-200 px-3.5 py-2.5 tex
 // Cartão de secção reutilizável (definido fora do componente: ver Field em BotEditor).
 function Card({ title, action, children }) {
   return (
-    <div className="mt-4 rounded-2xl border border-ink-100 bg-white p-5">
+    <div className="rounded-2xl border border-ink-100 bg-white p-5">
       {(title || action) && (
         <div className="mb-3 flex items-center justify-between">
           {title && <h2 className="text-[15px] font-semibold text-ink-900">{title}</h2>}
@@ -113,9 +113,11 @@ export default function AccountPage({ profile, onProfile }) {
   }
 
   return (
-    <div className="max-w-xl">
-      <h1 className="font-display text-2xl font-bold text-ink-900">A minha conta</h1>
-      <p className="mt-1 text-[14px] text-ink-500">Gere o teu perfil, segurança e acesso.</p>
+    <div className="space-y-4">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-ink-900">A minha conta</h1>
+        <p className="mt-1 text-[14px] text-ink-500">Gere o teu perfil, segurança e acesso.</p>
+      </div>
 
       {/* Resumo (read-only) */}
       <Card title="Resumo">
@@ -130,6 +132,7 @@ export default function AccountPage({ profile, onProfile }) {
         </div>
       </Card>
 
+      <div className="grid items-start gap-4 lg:grid-cols-2">
       {/* Perfil: nome */}
       <Card title="Perfil">
         <label className="block">
@@ -188,9 +191,10 @@ export default function AccountPage({ profile, onProfile }) {
           <Note note={notes.key} />
         </Card>
       )}
+      </div>
 
       {/* Zona de perigo */}
-      <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-5">
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
         <h2 className="text-[15px] font-semibold text-red-700">Zona de perigo</h2>
         <p className="mt-1 text-[13px] text-red-600/90">Apagar a conta remove permanentemente tudo o que lhe está associado.</p>
         <button onClick={removeAccount} disabled={busy === 'delete'} className="mt-3 rounded-xl bg-red-600 px-4 py-2.5 font-semibold text-white hover:bg-red-700 disabled:opacity-50">
