@@ -60,11 +60,11 @@ export default function ChatBot() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [history, typing, finished]);
 
-  // Permite recomeçar a conversa a partir do header: window.dispatchEvent(new Event('reset-lara'))
+  // Permite recomeçar a conversa a partir do header: window.dispatchEvent(new Event('kyvo:reset'))
   useEffect(() => {
     const onReset = () => restart();
-    window.addEventListener('reset-lara', onReset);
-    return () => window.removeEventListener('reset-lara', onReset);
+    window.addEventListener('kyvo:reset', onReset);
+    return () => window.removeEventListener('kyvo:reset', onReset);
   }, []);
 
   function answer(label, value) {

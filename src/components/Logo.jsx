@@ -1,57 +1,14 @@
-import { useId } from 'react';
-
-/* Logomark da Closr.
-   Conceito: balão de conversa com um visto — a venda fecha-se na conversa
-   ("closer"). Squircle com o âmbar da marca. */
-export function LogoMark({ size = 40, className = '' }) {
-  const uid = useId().replace(/:/g, '');
+/* Logótipo Kyvo — imagem (PNG recortado e transparente em /public). */
+export default function Logo({ size = 38, className = '' }) {
+  // `size` controla a altura; a largura ajusta-se pela proporção (~2.4:1).
   return (
-    <svg
-      viewBox="0 0 48 48"
-      width={size}
+    <img
+      src="/kyvo-logo.png"
+      alt="Kyvo"
       height={size}
-      className={className}
-      role="img"
-      aria-label="Closr"
-    >
-      <defs>
-        <linearGradient id={`g-${uid}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#f59331" />
-          <stop offset="1" stopColor="#dd7016" />
-        </linearGradient>
-      </defs>
-      <rect width="48" height="48" rx="14" fill={`url(#g-${uid})`} />
-      {/* balão de conversa */}
-      <path
-        d="M14 13 h20 a4 4 0 0 1 4 4 v11 a4 4 0 0 1 -4 4 h-9 l-7 5 v-5 h-4 a4 4 0 0 1 -4 -4 v-11 a4 4 0 0 1 4 -4 Z"
-        fill="#fff"
-      />
-      {/* visto (venda fechada) */}
-      <path
-        d="M18.5 22.5 l4 4 l7.5 -8"
-        fill="none"
-        stroke="#c2641a"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-/* Logótipo completo: logomark + wordmark "Closr". */
-export default function Logo({ size = 38, showWordmark = true, className = '' }) {
-  return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <LogoMark size={size} />
-      {showWordmark && (
-        <span className="flex flex-col leading-none">
-          <span className="font-display text-[19px] font-extrabold tracking-tight text-ink-900">Closr</span>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-600">
-            Agente de Vendas
-          </span>
-        </span>
-      )}
-    </span>
+      style={{ height: size, width: 'auto' }}
+      className={`select-none ${className}`}
+      draggable={false}
+    />
   );
 }

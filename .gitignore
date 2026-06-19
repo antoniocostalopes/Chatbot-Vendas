@@ -1,6 +1,14 @@
 # Dependencies
 node_modules/
 
+# Environment
+.env
+.env.local
+.env*.local
+
+# Vercel
+.vercel/
+
 # Build output
 dist/
 .vite/
@@ -18,3 +26,8 @@ Thumbs.db
 _vw/
 vw*.cjs
 verify*.cjs
+
+# Imagens-fonte na raiz (originais; as versões servidas estão em public/)
+/Kyvo_logotipo.png
+/avatar.png
+/logo.png

@@ -11,11 +11,11 @@ Portugal que têm tráfego no site mas perdem leads por não responderem a tempo
 Chegam à landing page a avaliar uma ferramenta nova, com pouca paciência e muito
 ceticismo — querem perceber em segundos "o que é, o que me dá, e quão fácil é".
 O objetivo da página é convertê-los a experimentar o agente ali mesmo (o widget
-"Joana" no canto do ecrã).
+"Kyvo" no canto do ecrã).
 
 ## Product Purpose
 
-O Closr é um agente de vendas com IA que conversa com cada visitante do site,
+O Kyvo é um agente de vendas com IA que conversa com cada visitante do site,
 qualifica o interesse, capta o lead e conduz à proposta — 24/7, treinado nos
 produtos do cliente, instalável com uma linha de código. A landing existe para
 provar, num scroll, que isto não é "mais um chatbot" mas um vendedor que fecha
@@ -49,7 +49,7 @@ fácil, está em conformidade").
 3. **Variar o ritmo, não repetir o molde.** Cada secção tem o tratamento que o
    seu conteúdo pede — sequências como sequências, comparações como comparações
    — em vez de N cards iguais.
-4. **O CTA está sempre ao alcance.** O caminho para experimentar a Joana é óbvio
+4. **O CTA está sempre ao alcance.** O caminho para experimentar o Kyvo é óbvio
    e repetido sem ser ruidoso.
 5. **Movimento intencional.** A animação guia o olhar e dá energia comercial; é
    parte do design, nunca decoração reflexa, e respeita prefers-reduced-motion.

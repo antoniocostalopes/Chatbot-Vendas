@@ -17,8 +17,8 @@ html {
 body {
   margin: 0;
   font-family: '"Hanken Grotesk"', system-ui, 'Segoe UI', Roboto, sans-serif;
-  color: oklch(0.255 0.018 66);
-  background: oklch(1 0 0);
+  color: #1a2336;
+  background: #ffffff;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

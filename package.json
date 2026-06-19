@@ -1,18 +1,22 @@
 {
-  "name": "lara-chatbot-replica",
+  "name": "kyvo",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Réplica funcional do chatbot de seguros 'Lara' (uthere partners) — Auto + Casa, com simulação mock.",
+  "description": "Kyvo — agente de vendas com IA: React/Vite + Vercel Functions + Supabase + OpenAI.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
     "framer-motion": "^11.3.0",
+    "openai": "^4.67.3",
+    "pdfjs-dist": "^4.6.82",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",

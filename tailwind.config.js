@@ -4,36 +4,36 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Identidade Closr — âmbar quente decisivo (energia comercial, "closer")
-        // sobre preto-tinta e branco puro. OKLCH, hue ~68 (±10 do seed 77).
+        // Identidade Kyvo — azul do logótipo: ciano (#00A8FF) → azul (#2B6BF5)
+        // → indigo (#5040FF), sobre navy (#102030) e branco frio.
         brand: {
-          50: 'oklch(0.971 0.018 78)',
-          100: 'oklch(0.938 0.045 76)',
-          200: 'oklch(0.892 0.080 73)',
-          300: 'oklch(0.826 0.118 71)',
-          400: 'oklch(0.752 0.152 69)',
-          500: 'oklch(0.685 0.178 67)', // primário
-          600: 'oklch(0.605 0.172 58)', // hover / mais profundo
-          700: 'oklch(0.520 0.150 53)',
-          800: 'oklch(0.430 0.120 50)',
-          900: 'oklch(0.360 0.094 49)',
+          50: '#eef4ff',
+          100: '#dbe7ff',
+          200: '#bdd4ff',
+          300: '#8fb6ff',
+          400: '#5b8ffb',
+          500: '#2b6bf5', // primário
+          600: '#1a52e0', // hover / mais profundo
+          700: '#1a43bb',
+          800: '#1b3b96',
+          900: '#1a3576',
         },
-        // Preto-tinta quente — texto e superfícies escuras "drenched".
+        // Navy frio — texto e superfícies escuras (do wordmark "Kyvo", #102030).
         ink: {
-          DEFAULT: 'oklch(0.205 0.018 67)',
-          50: 'oklch(0.975 0.005 75)',
-          100: 'oklch(0.948 0.007 72)',
-          200: 'oklch(0.900 0.010 70)',
-          300: 'oklch(0.820 0.012 68)',
-          400: 'oklch(0.660 0.016 66)',
-          500: 'oklch(0.520 0.018 64)', // muted / texto secundário (≥4.5:1 em branco)
-          600: 'oklch(0.420 0.018 64)',
-          700: 'oklch(0.330 0.018 65)',
-          800: 'oklch(0.255 0.018 66)',
-          900: 'oklch(0.180 0.016 67)',
+          DEFAULT: '#1a2336',
+          50: '#f5f7fb',
+          100: '#e9eef5',
+          200: '#d3dbe8',
+          300: '#aab7cb',
+          400: '#7587a3',
+          500: '#506583', // muted / texto secundário (≥4.5:1 em branco)
+          600: '#3a4d68',
+          700: '#293a51',
+          800: '#1c2940',
+          900: '#111b2e',
         },
-        // Branco quase neutro com lufada quente mínima para secções/cards.
-        surface: 'oklch(0.984 0.006 75)',
+        // Branco quase neutro, levemente frio, para secções/cards.
+        surface: '#f5f8fc',
       },
       fontFamily: {
         sans: ['"Hanken Grotesk"', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
@@ -42,10 +42,17 @@ export default {
       letterSpacing: {
         tightest: '-0.04em',
       },
+      backgroundImage: {
+        // Assinatura Kyvo: ciano → azul → indigo (igual ao "K" do logótipo).
+        'grad-brand': 'linear-gradient(135deg, #2b7bf2 0%, #2b6bf5 50%, #3b3fea 100%)',
+        'grad-brand-deep': 'linear-gradient(135deg, #1f63da 0%, #1a52e0 50%, #2f2fcf 100%)',
+      },
       boxShadow: {
-        glow: '0 20px 60px -15px oklch(0.685 0.178 67 / 0.45)',
-        'glow-sm': '0 12px 30px -10px oklch(0.685 0.178 67 / 0.40)',
-        lift: '0 24px 50px -24px oklch(0.205 0.018 67 / 0.30)',
+        glow: '0 20px 60px -15px rgba(43,107,245,0.45)',
+        'glow-sm': '0 12px 30px -10px rgba(43,107,245,0.40)',
+        lift: '0 24px 50px -24px rgba(16,32,48,0.30)',
+        // Sombra de cartão premium (estado de repouso, subtil mas com profundidade).
+        card: '0 1px 2px -1px rgba(16,32,48,0.06), 0 14px 30px -16px rgba(16,32,48,0.16)',
       },
       keyframes: {
         'fade-up': {

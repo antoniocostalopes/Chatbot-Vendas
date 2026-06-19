@@ -19,7 +19,7 @@ export const GREETING = {
 export const PRODUCT_STEP = {
   type: 'options',
   key: 'product',
-  prompt: 'Olá, eu sou a Joana! Que tipo de seguro procura?',
+  prompt: 'Olá, eu sou o Kyvo! Que tipo de seguro procura?',
   options: [
     { label: 'Seguro Auto', value: 'auto' },
     { label: 'Seguro Casa', value: 'home' },
@@ -181,7 +181,7 @@ const homeFlow = {
       prompt: 'Que capital pretende segurar para o recheio?',
       options: [
         { label: 'Até 25.000€', value: 25000 },
-        { label: '25.000€ – 50.000€', value: 50000 },
+        { label: '25.000€ a 50.000€', value: 50000 },
         { label: 'Mais de 50.000€', value: 75000 },
       ],
       next: 'postal',

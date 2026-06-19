@@ -1,8 +1,8 @@
+import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import Avatar from './Avatar.jsx';
-import Logo from './Logo.jsx';
 
-const openLara = () => window.dispatchEvent(new Event('open-lara'));
+const openKyvo = () => window.dispatchEvent(new Event('kyvo:open'));
 
 const EASE = [0.16, 1, 0.3, 1]; // ease-out-expo
 
@@ -15,7 +15,9 @@ function Reveal({ children, className, delay = 0, y = 18, as = 'div' }) {
       className={className}
       initial={reduce ? false : { opacity: 0, y }}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
+      // amount (em vez de margin) dispara de forma fiável quando ~15% está
+      // visível — evita secções que ficam em branco se o reveal não disparar.
+      viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.6, ease: EASE, delay }}
     >
       {children}
@@ -99,7 +101,7 @@ function CTA({ children, size = 'md', variant = 'primary', className = '', ...re
   };
   const variants = {
     primary:
-      'bg-brand-500 text-white shadow-glow-sm hover:bg-brand-600 hover:-translate-y-0.5',
+      'bg-grad-brand text-white shadow-glow-sm hover:bg-grad-brand-deep hover:-translate-y-0.5 hover:shadow-glow',
     ghost:
       'border border-ink-200 bg-white text-ink-700 hover:border-brand-300 hover:text-brand-600',
     onDark:
@@ -107,7 +109,7 @@ function CTA({ children, size = 'md', variant = 'primary', className = '', ...re
   };
   return (
     <button
-      onClick={openLara}
+      onClick={openKyvo}
       className={`group inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 ${sizes[size]} ${variants[variant]} ${className}`}
       {...rest}
     >
@@ -118,23 +120,107 @@ function CTA({ children, size = 'md', variant = 'primary', className = '', ...re
 
 /* ---------- Navbar ---------- */
 function Nav() {
+  // Vidro adaptativo: escuro sobre o hero, claro ao descer a página.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  const onDark = !scrolled;
+
+  const link = onDark ? 'text-ink-200 hover:text-white' : 'text-ink-600 hover:text-brand-600';
   return (
     <header className="fixed inset-x-3 top-3 z-30 sm:inset-x-4 sm:top-4">
       <nav
         aria-label="Navegação principal"
-        className="mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-ink-100 bg-white/80 px-4 py-2.5 shadow-sm backdrop-blur-md sm:px-6"
+        className={`mx-auto flex max-w-6xl items-center justify-between rounded-2xl border px-4 py-2.5 backdrop-blur-xl transition-colors duration-300 sm:px-6 ${
+          onDark
+            ? 'border-white/15 bg-white/[0.08] shadow-[0_8px_32px_-8px_rgba(0,0,0,0.45)]'
+            : 'border-ink-100 bg-white/70 shadow-sm'
+        }`}
       >
-        <a href="#top" className="flex items-center" aria-label="Closr — início">
-          <Logo size={38} />
+        <a href="#top" className="flex items-center" aria-label="Kyvo, início">
+          <img
+            src={onDark ? '/kyvo-logo-white.png' : '/kyvo-logo.png'}
+            alt="Kyvo"
+            className="h-[34px] w-auto select-none"
+            draggable={false}
+          />
         </a>
-        <div className="hidden items-center gap-8 text-[15px] font-medium text-ink-600 md:flex">
-          <a href="#solucao" className="transition-colors hover:text-brand-600">Solução</a>
-          <a href="#como" className="transition-colors hover:text-brand-600">Como funciona</a>
-          <a href="#faq" className="transition-colors hover:text-brand-600">Perguntas</a>
+        <div className={`hidden items-center gap-8 text-[15px] font-medium md:flex ${onDark ? 'text-ink-200' : 'text-ink-600'}`}>
+          <a href="#solucao" className={`transition-colors ${link}`}>Solução</a>
+          <a href="#como" className={`transition-colors ${link}`}>Como funciona</a>
+          <a href="#faq" className={`transition-colors ${link}`}>Perguntas</a>
         </div>
         <CTA size="sm">Experimentar</CTA>
       </nav>
     </header>
+  );
+}
+
+/* ---------- Conversa do hero (revela-se mensagem a mensagem) ---------- */
+const HERO_MSGS = [
+  { from: 'bot', text: 'Olá! 👋 Em que posso ajudar?' },
+  { from: 'user', text: 'Tenho uma loja no WooCommerce e perco contactos fora de horas.' },
+  { from: 'bot', text: 'Conheço bem esse problema. Respondo a cada visitante na hora e capto o contacto por si.' },
+  { from: 'user', text: 'E é difícil de instalar?' },
+  { from: 'bot', text: 'Nada disso! Colo-me com uma linha e trato do resto. Deixe-me o seu e-mail e mostro-lhe já?' },
+];
+
+function HeroChat() {
+  const reduce = useReducedMotion();
+  const [shown, setShown] = useState(reduce ? HERO_MSGS.length : 0);
+  const [typing, setTyping] = useState(!reduce);
+
+  useEffect(() => {
+    if (reduce) return;
+    let t;
+    if (shown < HERO_MSGS.length) {
+      // "a escrever" um pouco, depois revela a mensagem seguinte
+      setTyping(true);
+      const think = shown === 0 ? 700 : 1300;
+      t = setTimeout(() => { setTyping(false); setShown((s) => s + 1); }, think);
+    } else {
+      // conversa completa — o visitante fica "a escrever" (o e-mail)
+      t = setTimeout(() => setTyping(true), 500);
+    }
+    return () => clearTimeout(t);
+  }, [shown, reduce]);
+
+  // alinhamento do indicador "a escrever": quem fala a seguir (no fim, o visitante)
+  const nextFrom = shown < HERO_MSGS.length ? HERO_MSGS[shown].from : 'user';
+
+  const bubble = (from) =>
+    from === 'bot'
+      ? 'max-w-[92%] rounded-2xl rounded-tl-md border border-white/10 bg-white/10 px-3.5 py-2 text-[13.5px] leading-snug text-ink-100 backdrop-blur'
+      : 'ml-auto w-fit max-w-[84%] rounded-2xl rounded-tr-md bg-grad-brand px-3.5 py-2 text-[13.5px] font-medium leading-snug text-white shadow-glow-sm';
+
+  return (
+    <div className="mt-4 space-y-2.5">
+      {HERO_MSGS.slice(0, shown).map((m, i) => (
+        <motion.div
+          key={i}
+          initial={reduce ? false : { opacity: 0, y: 8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.32, ease: EASE }}
+          className={bubble(m.from)}
+        >
+          {m.text}
+        </motion.div>
+      ))}
+      {typing && (
+        <div
+          className={`flex w-fit items-center gap-1.5 rounded-2xl border border-white/10 bg-white/10 px-3.5 py-2.5 backdrop-blur ${nextFrom === 'bot' ? 'rounded-tl-md' : 'ml-auto rounded-tr-md'}`}
+          aria-label="A escrever"
+        >
+          <span className="h-2 w-2 animate-bounce-dot rounded-full bg-white/70 [animation-delay:0ms]" />
+          <span className="h-2 w-2 animate-bounce-dot rounded-full bg-white/70 [animation-delay:150ms]" />
+          <span className="h-2 w-2 animate-bounce-dot rounded-full bg-white/70 [animation-delay:300ms]" />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -153,26 +239,37 @@ function Hero() {
       };
 
   return (
-    <section id="top" className="relative overflow-hidden px-5 pb-24 pt-32 sm:pt-36">
-      {/* brilho quente de fundo */}
-      <div className="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-[520px] max-w-4xl rounded-full bg-brand-300/35 blur-[120px]" aria-hidden />
-      <div className="pointer-events-none absolute -right-24 top-40 h-72 w-72 rounded-full bg-brand-200/40 blur-[100px]" aria-hidden />
+    <section id="top" className="relative flex min-h-screen flex-col overflow-hidden bg-ink-900 px-5 pb-10 pt-28 sm:pt-32">
+      {/* base escura + mesh de luz (nebulosa / VR, sem grelha) */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink-900 via-ink-900 to-[#0a1020]" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(55% 48% at 78% 26%, rgba(24,184,255,.30), transparent 60%),' +
+            'radial-gradient(46% 46% at 14% 16%, rgba(63,71,242,.26), transparent 60%),' +
+            'radial-gradient(42% 42% at 64% 86%, rgba(122,75,255,.20), transparent 62%)',
+        }}
+        aria-hidden
+      />
+      <div className="pointer-events-none absolute inset-x-0 -top-28 mx-auto h-[460px] max-w-3xl rounded-full bg-[#18b8ff]/20 blur-[130px]" aria-hidden />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center py-8">
+       <div className="grid w-full items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
         <motion.div variants={container} initial="hidden" animate="show">
           <motion.span
             variants={item}
-            className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1.5 text-[13px] font-semibold text-brand-700"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[13px] font-semibold text-brand-300 backdrop-blur"
           >
             <Icon.bolt className="h-4 w-4" /> O vendedor que nunca dorme
           </motion.span>
 
           <motion.h1
             variants={item}
-            className="mt-6 font-display text-[2.7rem] font-extrabold leading-[1.02] tracking-tightest text-ink-900 sm:text-[3.4rem] lg:text-[4rem]"
+            className="mt-6 font-display text-[2.85rem] font-extrabold leading-[1.0] tracking-tightest text-white sm:text-[3.6rem] lg:text-[4.2rem]"
           >
             Continue a vender com o seu{' '}
-            <span className="relative whitespace-nowrap text-brand-600">
+            <span className="relative whitespace-nowrap text-brand-300">
               agente
               <svg className="absolute -bottom-1.5 left-0 h-3 w-full text-brand-400" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none" aria-hidden>
                 <path d="M2 8.5C40 3.5 120 2.5 198 6.5" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
@@ -181,113 +278,108 @@ function Hero() {
             personalizado.
           </motion.h1>
 
-          <motion.p variants={item} className="mt-6 max-w-xl text-lg leading-relaxed text-ink-600">
-            Transforme visitantes em clientes sem levantar um dedo. O Closr aborda
+          <motion.p variants={item} className="mt-6 max-w-xl text-lg leading-relaxed text-ink-300">
+            Transforme visitantes em clientes sem levantar um dedo. O Kyvo aborda
             cada pessoa, percebe o que procura, aconselha como um vendedor da sua
-            equipa e capta o lead — 24/7, treinado nos{' '}
-            <strong className="font-semibold text-ink-800">seus</strong> produtos.
+            equipa e capta o lead, 24/7, treinado nos{' '}
+            <strong className="font-semibold text-white">seus</strong> produtos.
           </motion.p>
 
-          <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-3">
+          <motion.div variants={item} className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3">
             <CTA size="lg">
               Experimentar agora
               <Icon.arrow className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </CTA>
             <a
               href="#solucao"
-              className="cursor-pointer rounded-xl border border-ink-200 bg-white px-7 py-4 text-[16px] font-semibold text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-600"
+              className="group/link inline-flex cursor-pointer items-center gap-1.5 text-[15px] font-semibold text-ink-300 transition-colors hover:text-white"
             >
-              Ver a solução
+              Ver como funciona
+              <Icon.arrow className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
             </a>
           </motion.div>
 
-          <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px] font-medium text-ink-500">
+          <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px] font-medium text-ink-300">
             {['Instala em minutos', 'Sem código', 'Conforme o RGPD'].map((t) => (
               <span key={t} className="inline-flex items-center gap-1.5">
-                <Icon.check className="h-4 w-4 text-brand-500" /> {t}
+                <Icon.check className="h-4 w-4 text-brand-400" /> {t}
               </span>
             ))}
           </motion.div>
         </motion.div>
 
-        {/* Visual: conversa ao vivo + sinais de venda */}
+        {/* Visual 3D em vidro (glassmorphism) — cena de conversa flutuante */}
         <motion.div
-          className="relative mx-auto w-full max-w-md"
-          initial={reduce ? false : { opacity: 0, scale: 0.96, y: 18 }}
+          className="relative mx-auto w-full max-w-md [perspective:1600px]"
+          initial={reduce ? false : { opacity: 0, scale: 0.94, y: 20 }}
           animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: EASE, delay: 0.25 }}
+          transition={{ duration: 0.9, ease: EASE, delay: 0.25 }}
         >
-          <div className="rounded-[1.75rem] border border-ink-100 bg-white p-5 shadow-lift">
-            <div className="flex items-center gap-3 border-b border-ink-100 pb-4">
+          {/* halo de luz por trás do vidro */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#18b8ff]/45 to-[#3f47f2]/45 blur-[80px]" aria-hidden />
+
+          {/* painel de vidro principal — inclinado em 3D */}
+          <div className="relative z-10 rounded-[1.75rem] border border-white/15 bg-white/[0.08] p-5 shadow-[0_40px_80px_-24px_rgba(0,0,0,0.65)] backdrop-blur-2xl [transform:rotateY(-13deg)_rotateX(7deg)]">
+            <span className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" aria-hidden />
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
               <div className="relative">
                 <Avatar size={44} />
-                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-ink-900 bg-emerald-400" />
               </div>
               <div>
-                <div className="text-[15px] font-semibold text-ink-800">Joana · Assistente</div>
-                <div className="flex items-center gap-1.5 text-[12px] font-medium text-emerald-600">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> a responder
+                <div className="text-[15px] font-semibold text-white">Kyvo · Assistente</div>
+                <div className="flex items-center gap-1.5 text-[12px] font-medium text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> a responder
                 </div>
               </div>
             </div>
-            <div className="mt-4 space-y-3">
-              <div className="max-w-[85%] rounded-2xl rounded-tl-md bg-ink-100 px-4 py-2.5 text-[14px] text-ink-700">
-                Olá! Em que posso ajudar hoje?
-              </div>
-              <div className="ml-auto w-fit rounded-2xl rounded-tr-md bg-brand-500 px-4 py-2.5 text-[14px] font-medium text-white shadow-glow-sm">
-                Quero saber mais
-              </div>
-              <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-md bg-ink-100 px-4 py-3 w-fit" aria-label="A escrever">
-                <span className="h-2 w-2 animate-bounce-dot rounded-full bg-ink-400 [animation-delay:0ms]" />
-                <span className="h-2 w-2 animate-bounce-dot rounded-full bg-ink-400 [animation-delay:150ms]" />
-                <span className="h-2 w-2 animate-bounce-dot rounded-full bg-ink-400 [animation-delay:300ms]" />
-              </div>
-            </div>
+            <HeroChat />
           </div>
 
-          {/* cartões flutuantes — sinais de venda */}
+          {/* chip de vidro flutuante (em frente do painel) */}
           <motion.div
-            className="absolute -bottom-7 -left-5 hidden w-44 rotate-[-5deg] rounded-2xl border border-ink-100 bg-white p-3.5 shadow-lift sm:block"
-            initial={reduce ? false : { opacity: 0, y: 14 }}
-            animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: EASE, delay: 0.9 }}
-          >
-            <div className="flex items-center gap-2">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-600">
-                <Icon.target className="h-4 w-4" />
-              </span>
-              <div>
-                <div className="text-[11px] font-medium text-ink-500">Novo lead</div>
-                <div className="text-[14px] font-bold text-ink-900">qualificado</div>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="absolute -right-5 top-8 hidden w-48 rotate-[5deg] rounded-2xl border border-emerald-200 bg-white p-3.5 shadow-lift sm:block"
+            className="absolute -right-4 -top-5 z-20 hidden items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2.5 shadow-lift backdrop-blur-xl sm:flex"
             initial={reduce ? false : { opacity: 0, y: 14 }}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: EASE, delay: 1.1 }}
           >
-            <div className="flex items-center gap-2">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
-                <Icon.check className="h-4 w-4" />
-              </span>
-              <span className="text-[13px] font-semibold text-ink-800">Proposta enviada</span>
-            </div>
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emerald-400 text-ink-900">
+              <Icon.check className="h-4 w-4" />
+            </span>
+            <span className="text-[13px] font-semibold text-white">Proposta enviada</span>
           </motion.div>
         </motion.div>
+       </div>
       </div>
 
       {/* faixa de plataformas */}
-      <Reveal delay={0.2} className="relative mx-auto mt-20 max-w-5xl">
-        <p className="text-center text-[13px] font-medium text-ink-400">
-          Funciona em qualquer site — sem mexer no resto da página
+      <Reveal delay={0.2} className="relative z-10 mx-auto mt-6 w-full max-w-5xl">
+        <p className="text-center text-[12px] font-semibold uppercase tracking-[0.18em] text-ink-400">
+          Funciona em qualquer site, sem mexer no resto da página
         </p>
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[15px] font-semibold text-ink-400">
-          {['WordPress', 'Shopify', 'Wix', 'Webflow', 'Squarespace', 'Código próprio'].map((p) => (
-            <span key={p} className="transition-colors hover:text-ink-600">{p}</span>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
+          {[
+            { name: 'WordPress', src: '/logos/wordpress.svg' },
+            { name: 'Shopify', src: '/logos/shopify.svg' },
+            { name: 'Wix', src: '/logos/wix.svg' },
+            { name: 'Webflow', src: '/logos/webflow.svg' },
+            { name: 'Squarespace', src: '/logos/squarespace.svg' },
+          ].map((p) => (
+            <img
+              key={p.name}
+              src={p.src}
+              alt={p.name}
+              title={p.name}
+              className="h-6 w-auto opacity-45 transition-opacity duration-200 hover:opacity-80"
+              loading="lazy"
+            />
           ))}
+          {/* Código próprio */}
+          <span title="Código próprio" className="text-ink-300 opacity-50 transition-opacity duration-200 hover:opacity-80">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" role="img" aria-label="Código próprio">
+              <path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12" />
+            </svg>
+          </span>
         </div>
       </Reveal>
     </section>
@@ -306,17 +398,17 @@ function Problem() {
     'Qualificar cada interessado à mão é lento e não escala.',
     'Sem seguimento imediato, o interesse esfria e perde-se.',
   ];
-  const withClosr = [
+  const withKyvo = [
     'Responde a cada visitante em segundos, 24/7.',
     'Qualifica e capta os dados em paralelo, sem esforço.',
-    'Envia a proposta na hora — o interesse não arrefece.',
+    'Envia a proposta na hora, antes de o interesse arrefecer.',
   ];
 
   return (
     <section className="bg-surface px-5 py-24">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-[2.6rem] sm:leading-[1.08]">
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
             Quantas vendas perde por{' '}
             <span className="text-brand-600">não responder a tempo?</span>
           </h2>
@@ -327,17 +419,17 @@ function Problem() {
         </Reveal>
 
         {/* Faixa de estatísticas */}
-        <Reveal delay={0.05} className="mt-12 grid divide-y divide-ink-100 overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-sm sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <Reveal delay={0.05} className="mt-12 grid divide-y divide-ink-100 overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-card sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {stats.map(([v, l]) => (
             <div key={v} className="px-6 py-8 text-center">
-              <div className="font-display text-[2.75rem] font-extrabold leading-none text-ink-900">{v}</div>
+              <div className="font-display text-[2.75rem] font-extrabold leading-none text-brand-600">{v}</div>
               <div className="mx-auto mt-3 max-w-[15rem] text-[14px] leading-snug text-ink-500">{l}</div>
             </div>
           ))}
         </Reveal>
-        <p className="mt-3 text-center text-[12px] text-ink-400">Médias do setor de resposta a leads.</p>
+        <p className="mt-3 text-center text-[12px] text-ink-400">Fonte: médias do setor. A rapidez de resposta é o fator nº 1 na conversão de leads.</p>
 
-        {/* Sem agente vs Com o Closr — o lado "com" domina */}
+        {/* Sem agente vs Com o Kyvo — o lado "com" domina */}
         <div className="mt-12 grid items-stretch gap-5 md:grid-cols-5">
           <Reveal className="md:col-span-2">
             <div className="flex h-full flex-col rounded-3xl border border-ink-100 bg-white/60 p-7">
@@ -365,10 +457,10 @@ function Problem() {
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-500 text-white">
                   <Icon.bolt className="h-5 w-5" />
                 </span>
-                <h3 className="text-lg font-semibold text-white">Com o Closr</h3>
+                <h3 className="text-lg font-semibold text-white">Com o Kyvo</h3>
               </div>
               <ul className="relative mt-5 space-y-3.5">
-                {withClosr.map((t) => (
+                {withKyvo.map((t) => (
                   <li key={t} className="flex items-start gap-2.5 text-[15px] text-ink-100">
                     <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-500 text-white">
                       <Icon.check className="h-3.5 w-3.5" />
@@ -389,45 +481,62 @@ function Problem() {
   );
 }
 
-/* ---------- Diferenciação (solução) ---------- */
+/* ---------- Diferenciação: porque os chatbots comuns falham ---------- */
 function Difference() {
-  const rows = [
-    ['Espera que cliquem em "ajuda"', 'Aborda cada visitante primeiro'],
-    ['Responde com FAQs genéricas', 'Conhece os seus produtos e aconselha'],
-    ['Recolhe uma mensagem solta', 'Qualifica e capta o lead completo'],
-    ['Deixa a venda para depois', 'Conduz à proposta na hora'],
+  const weaknesses = [
+    { icon: Icon.shield, t: 'Não conhecem os seus produtos', d: 'Respondem com FAQs genéricas. Não aconselham nem recomendam o que faz sentido para cada cliente.' },
+    { icon: Icon.target, t: 'Não captam o lead', d: 'Recolhem uma mensagem solta e ficam por aí. O contacto qualificado nunca chega à sua equipa.' },
+    { icon: Icon.clock, t: 'Não fazem seguimento', d: 'Deixam a venda para depois. Sem resposta imediata, o interesse esfria e o cliente desaparece.' },
   ];
   return (
     <section id="solucao" className="px-5 py-24">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-[2.6rem] sm:leading-[1.08]">
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
             Não é um chatbot. <span className="text-brand-600">É um vendedor.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-ink-600">
-            Os chatbots respondem a perguntas. O Closr faz o que um bom vendedor faz —
-            aborda, aconselha, qualifica e conduz à decisão.
+            A maioria dos chatbots não vende, só responde. Eis onde falham, e o que o
+            Kyvo faz de diferente.
           </p>
         </Reveal>
 
-        <Reveal delay={0.05} className="mt-12 overflow-hidden rounded-3xl border border-ink-100 shadow-sm">
-          <div className="grid grid-cols-2 text-[13px] font-semibold uppercase tracking-wide">
-            <div className="bg-ink-50 px-5 py-3.5 text-ink-400">Chatbot tradicional</div>
-            <div className="bg-brand-500 px-5 py-3.5 text-white">Closr</div>
-          </div>
-          <div className="grid grid-cols-2">
-            {rows.map(([bad, good], i) => (
-              <div key={i} className="contents">
-                <div className="flex items-start gap-2.5 border-t border-ink-100 bg-white px-5 py-4 text-[15px] text-ink-500">
-                  <span className="mt-0.5 text-ink-300"><XMark /></span>
-                  {bad}
+        {/* 3 fraquezas dos chatbots comuns */}
+        <div className="mt-14 grid gap-5 md:grid-cols-3">
+          {weaknesses.map((w, i) => (
+            <Reveal key={w.t} delay={i * 0.08}>
+              <div className="flex h-full flex-col rounded-3xl border border-ink-100 bg-white p-7 shadow-card">
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-ink-50 text-ink-400">
+                  <w.icon className="h-5 w-5" />
+                </span>
+                <div className="mt-5 inline-flex w-fit items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-[12px] font-semibold text-red-600">
+                  <XMark className="h-3 w-3" /> Chatbot comum
                 </div>
-                <div className="flex items-start gap-2.5 border-t border-brand-100 bg-brand-50/50 px-5 py-4 text-[15px] font-medium text-ink-800">
-                  <Icon.check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
-                  {good}
-                </div>
+                <h3 className="mt-3 text-[17px] font-semibold text-ink-900">{w.t}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{w.d}</p>
               </div>
-            ))}
+            </Reveal>
+          ))}
+        </div>
+
+        {/* A resposta do Kyvo */}
+        <Reveal delay={0.1} className="mt-5">
+          <div className="relative overflow-hidden rounded-3xl bg-ink-900 p-8 shadow-lift sm:p-10">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#3f47f2]/30 blur-3xl" aria-hidden />
+            <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="max-w-xl">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[12px] font-semibold text-brand-300">
+                  <Icon.check className="h-3.5 w-3.5" /> O Kyvo
+                </div>
+                <h3 className="mt-3 font-display text-2xl font-bold leading-snug text-white sm:text-[1.7rem]">
+                  Aborda, conhece os produtos, capta o lead e conduz à venda, sozinho.
+                </h3>
+              </div>
+              <CTA size="lg" className="shrink-0">
+                Ver na prática
+                <Icon.arrow className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </CTA>
+            </div>
           </div>
         </Reveal>
       </div>
@@ -438,36 +547,43 @@ function Difference() {
 /* ---------- Como funciona (sequência real) ---------- */
 function Steps() {
   const steps = [
-    { n: '01', t: 'Conversa e qualifica', d: 'O agente aborda cada visitante, percebe o que precisa e recolhe os dados certos — automaticamente.', icon: Icon.chat },
-    { n: '02', t: 'Capta e envia a proposta', d: 'Recolhe o contacto e envia a proposta certa por e-mail, em segundos — sem trabalho manual.', icon: Icon.send },
+    { n: '01', t: 'Conversa e qualifica', d: 'O agente aborda cada visitante, percebe o que precisa e recolhe os dados certos, automaticamente.', icon: Icon.chat },
+    { n: '02', t: 'Capta e envia a proposta', d: 'Recolhe o contacto e envia a proposta certa por e-mail, em segundos, sem trabalho manual.', icon: Icon.send },
     { n: '03', t: 'Conduz à venda', d: 'Entrega-lhe leads prontos a fechar e encaminha o cliente para o passo seguinte.', icon: Icon.shield },
   ];
   return (
     <section id="como" className="bg-surface px-5 py-24">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-[2.6rem] sm:leading-[1.08]">
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
             Vende por si, do primeiro <span className="text-brand-600">olá</span> ao fecho
           </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-600">
+            Três passos. Depois é só receber leads prontos a fechar.
+          </p>
         </Reveal>
 
-        <div className="relative mt-16">
-          {/* linha que liga a sequência */}
-          <div className="pointer-events-none absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-transparent via-brand-200 to-transparent md:block" aria-hidden />
-          <div className="grid gap-10 md:grid-cols-3 md:gap-8">
-            {steps.map((s, i) => (
-              <Reveal key={s.n} delay={i * 0.12} className="relative">
-                <div className="flex items-center gap-4">
-                  <span className="relative z-10 grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-glow-sm">
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {steps.map((s, i) => (
+            <Reveal key={s.n} delay={i * 0.1} className="relative">
+              {/* seta de ligação entre passos (desktop) */}
+              {i < steps.length - 1 && (
+                <span className="pointer-events-none absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 text-ink-200 md:block" aria-hidden>
+                  <Icon.arrow className="h-6 w-6" />
+                </span>
+              )}
+              <div className="group flex h-full flex-col rounded-3xl border border-ink-100 bg-white p-7 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+                <div className="flex items-center justify-between">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-grad-brand text-white shadow-glow-sm transition-transform duration-300 group-hover:scale-110">
                     <s.icon className="h-6 w-6" />
                   </span>
-                  <span className="font-display text-5xl font-extrabold leading-none text-brand-200">{s.n}</span>
+                  <span className="font-display text-[3.25rem] font-extrabold leading-none text-ink-100 transition-colors group-hover:text-brand-100">{s.n}</span>
                 </div>
                 <h3 className="mt-6 text-xl font-semibold text-ink-900">{s.t}</h3>
                 <p className="mt-2 text-[15px] leading-relaxed text-ink-600">{s.d}</p>
-              </Reveal>
-            ))}
-          </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -480,14 +596,14 @@ function Features() {
     { icon: Icon.shield, t: 'Treinado nos seus produtos', d: 'Conhece o seu catálogo e responde como um vendedor da sua equipa, com o tom de voz da marca.', big: true },
     { icon: Icon.chat, t: 'Qualifica e capta leads', d: 'Faz as perguntas certas e recolhe contactos prontos a fechar.', big: false },
     { icon: Icon.bolt, t: 'Disponível 24/7', d: 'Atende cada visitante de imediato, em qualquer dispositivo.', big: false },
-    { icon: Icon.send, t: 'Integra em minutos', d: 'Um snippet no seu site e o agente começa a vender — sem código, em qualquer plataforma.', big: true },
+    { icon: Icon.send, t: 'Integra em minutos', d: 'Um snippet no seu site e o agente começa a vender, sem código, em qualquer plataforma.', big: true },
   ];
   return (
     <section id="produtos" className="px-5 py-24">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-[2.6rem] sm:leading-[1.08]">
-            Tudo o que um bom vendedor faz — <span className="text-brand-600">automatizado</span>
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
+            Tudo o que um bom vendedor faz, <span className="text-brand-600">automatizado</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-ink-600">
             Treinado no seu negócio, a postos em minutos e sempre a trabalhar.
@@ -501,8 +617,8 @@ function Features() {
               delay={i * 0.08}
               className={f.big ? 'md:col-span-4' : 'md:col-span-2'}
             >
-              <div className="group flex h-full flex-col rounded-3xl border border-ink-100 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand-500 text-white transition-transform duration-300 group-hover:scale-110">
+              <div className="group flex h-full flex-col rounded-3xl border border-ink-100 bg-white p-7 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-grad-brand text-white transition-transform duration-300 group-hover:scale-110">
                   <f.icon className="h-6 w-6" />
                 </span>
                 <h3 className="mt-5 text-xl font-semibold text-ink-900">{f.t}</h3>
@@ -534,8 +650,8 @@ function Impact() {
   return (
     <section className="px-5 py-10">
       <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-ink-900 px-8 py-14 sm:px-12 sm:py-16">
-        <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-brand-500/25 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-brand-600/20 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#18b8ff]/20 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-[#3f47f2]/25 blur-3xl" aria-hidden />
         <div className="relative grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[13px] font-semibold text-brand-300">
@@ -545,8 +661,8 @@ function Impact() {
               Enquanto pensa nisto, há visitantes a sair sem comprar.
             </h2>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-ink-300">
-              O Closr não tira folgas, não esquece o seguimento e não deixa
-              ninguém à espera. É o seu melhor vendedor — multiplicado.
+              O Kyvo não tira folgas, não esquece o seguimento e não deixa
+              ninguém à espera. É o seu melhor vendedor, multiplicado.
             </p>
           </Reveal>
 
@@ -568,20 +684,20 @@ function Impact() {
 function Install() {
   const steps = [
     ['Conte-nos sobre o seu negócio', 'Partilha os seus produtos e o tom de voz da marca.'],
-    ['Treinamos o seu agente', 'O Closr aprende a aconselhar e a vender como a sua equipa.'],
-    ['Cole uma linha no seu site', 'O agente fica a vender de imediato — sem código, em qualquer plataforma.'],
+    ['Treinamos o seu agente', 'O Kyvo aprende a aconselhar e a vender como a sua equipa.'],
+    ['Cole uma linha no seu site', 'O agente fica a vender de imediato, sem código, em qualquer plataforma.'],
   ];
   return (
     <section id="comecar" className="bg-surface px-5 py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
         <Reveal>
-          <h2 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-[2.6rem] sm:leading-[1.08]">
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
             A funcionar <span className="text-brand-600">hoje</span>, não daqui a semanas
           </h2>
           <ol className="mt-8 space-y-6">
             {steps.map(([t, d], i) => (
               <li key={t} className="flex gap-4">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500 text-[15px] font-bold text-white">{i + 1}</span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-grad-brand text-[15px] font-bold text-white">{i + 1}</span>
                 <div>
                   <h3 className="text-[17px] font-semibold text-ink-900">{t}</h3>
                   <p className="mt-1 text-[15px] leading-relaxed text-ink-600">{d}</p>
@@ -605,7 +721,7 @@ function Install() {
           </div>
           <pre className="overflow-x-auto px-5 py-5 text-[13px] leading-relaxed text-ink-200">
 <span className="text-ink-400">&lt;!-- Cole antes de &lt;/body&gt; --&gt;</span>{'\n'}
-<span className="text-sky-300">&lt;script</span>{'\n'}  <span className="text-brand-300">src</span>=<span className="text-emerald-300">"https://cdn.closr.app/widget.js"</span>{'\n'}  <span className="text-brand-300">data-closr-id</span>=<span className="text-emerald-300">"o-seu-id"</span> <span className="text-brand-300">defer</span>{'\n'}<span className="text-sky-300">&gt;&lt;/script&gt;</span>
+<span className="text-sky-300">&lt;script</span>{'\n'}  <span className="text-brand-300">src</span>=<span className="text-emerald-300">"https://cdn.kyvo.app/widget.js"</span>{'\n'}  <span className="text-brand-300">data-kyvo-id</span>=<span className="text-emerald-300">"o-seu-id"</span> <span className="text-brand-300">defer</span>{'\n'}<span className="text-sky-300">&gt;&lt;/script&gt;</span>
           </pre>
         </Reveal>
       </div>
@@ -616,7 +732,7 @@ function Install() {
 /* ---------- Testemunhos (um em destaque + dois) ---------- */
 function Testimonials() {
   const featured = {
-    q: 'O agente atende os visitantes a qualquer hora e entrega-me leads já qualificados. Fechei mais negócios este trimestre do que no anterior — sem contratar ninguém.',
+    q: 'O agente atende os visitantes a qualquer hora e entrega-me leads já qualificados. Fechei mais negócios este trimestre do que no anterior, sem contratar ninguém.',
     n: 'Ricardo Sousa',
     r: 'Diretor Comercial',
   };
@@ -630,7 +746,7 @@ function Testimonials() {
     <section id="testemunhos" className="px-5 py-24">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-[2.6rem] sm:leading-[1.08]">
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
             Quem usa, <span className="text-brand-600">recomenda</span>
           </h2>
         </Reveal>
@@ -688,25 +804,28 @@ function Testimonials() {
 /* ---------- FAQ ---------- */
 function FAQ() {
   const faqs = [
-    ['O Closr funciona no meu site?', 'Sim. Basta colar uma linha de código — funciona em qualquer site (WordPress, Shopify, Wix ou código próprio), sem mexer no resto da página.'],
+    ['O Kyvo funciona no meu site?', 'Sim. Basta colar uma linha de código. Funciona em qualquer site (WordPress, Shopify, Wix ou código próprio), sem mexer no resto da página.'],
     ['Consigo treiná-lo nos meus produtos?', 'Sim. O agente é treinado no seu catálogo e no tom de voz da marca, para responder e aconselhar como um vendedor da sua equipa.'],
     ['Preciso de saber programar?', 'Não. A instalação é um copiar-colar e nós tratamos da configuração e do treino consigo.'],
     ['Em que idiomas fala?', 'Em português e noutros idiomas, conforme o público do seu site.'],
-    ['Para onde vão os leads captados?', 'Para onde quiser — e-mail, folha de cálculo, CRM ou notificação instantânea no Slack/WhatsApp. Sempre com consentimento e em conformidade com o RGPD.'],
+    ['Para onde vão os leads captados?', 'Para onde quiser: e-mail, folha de cálculo, CRM ou notificação instantânea no Slack/WhatsApp. Sempre com consentimento e em conformidade com o RGPD.'],
     ['Quanto tempo demora a pôr a funcionar?', 'Minutos para instalar. O agente fica a postos assim que estiver treinado nos seus produtos.'],
   ];
   return (
     <section id="faq" className="bg-surface px-5 py-24">
       <div className="mx-auto max-w-3xl">
         <Reveal className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-[2.6rem] sm:leading-[1.08]">
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
             Tudo o que precisa de saber
           </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-600">
+            Sem letras pequenas. As respostas que importam antes de experimentar.
+          </p>
         </Reveal>
         <div className="mt-10 space-y-3">
           {faqs.map(([q, a], i) => (
             <Reveal key={q} delay={Math.min(i * 0.05, 0.2)}>
-              <details className="group rounded-2xl border border-ink-100 bg-white px-5 py-4 shadow-sm transition-colors open:border-brand-200 open:bg-brand-50/40">
+              <details className="group rounded-2xl border border-ink-100 bg-white px-5 py-4 shadow-card transition-colors open:border-brand-200 open:bg-brand-50/40">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[16px] font-semibold text-ink-800">
                   {q}
                   <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-brand-500 transition-transform duration-300 group-open:rotate-45" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -727,22 +846,29 @@ function FAQ() {
 function FinalCTA() {
   return (
     <section className="px-5 py-24">
-      <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2.25rem] bg-brand-500 px-8 py-16 text-center shadow-glow sm:px-12 sm:py-20">
-        <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/15 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -bottom-20 -right-12 h-64 w-64 rounded-full bg-brand-700/30 blur-3xl" aria-hidden />
+      <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2.25rem] bg-ink-900 px-8 py-16 text-center shadow-lift sm:px-12 sm:py-20">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background:
+            'radial-gradient(50% 60% at 20% 10%, rgba(24,184,255,.22), transparent 60%),' +
+            'radial-gradient(50% 60% at 85% 100%, rgba(122,75,255,.22), transparent 60%)' }}
+          aria-hidden
+        />
+        <div className="pointer-events-none absolute -left-16 -top-20 h-64 w-64 rounded-full bg-[#18b8ff]/30 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-24 -right-12 h-72 w-72 rounded-full bg-[#3f47f2]/35 blur-3xl" aria-hidden />
         <Reveal className="relative mx-auto max-w-2xl">
-          <h2 className="font-display text-3xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-[2.75rem]">
+          <h2 className="font-display text-[2.2rem] font-extrabold leading-[1.04] tracking-tight text-white sm:text-[3rem]">
             Cada visitante é uma venda à espera
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-brand-50">
-            Adicione a Joana ao seu site e deixe de perder quem chega interessado.
+          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-300">
+            Adicione o Kyvo ao seu site e deixe de perder quem chega interessado.
             Experimente agora, no canto do ecrã.
           </p>
-          <CTA size="lg" variant="onDark" className="mt-9">
+          <CTA size="lg" className="mt-9">
             Experimentar o agente
             <Icon.arrow className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </CTA>
-          <p className="mt-4 text-[13px] text-brand-100">Instala em minutos · sem código · sem compromisso</p>
+          <p className="mt-4 text-[13px] text-ink-400">Instala em minutos · sem código · sem compromisso</p>
         </Reveal>
       </div>
     </section>
@@ -750,23 +876,186 @@ function FinalCTA() {
 }
 
 /* ---------- Footer ---------- */
+const SOCIAL = [
+  { label: 'LinkedIn', href: '#', d: 'M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.7h.05c.53-.95 1.83-1.95 3.76-1.95C20.4 8.75 22 10.9 22 14.5V21h-4v-5.8c0-1.38-.03-3.15-1.92-3.15-1.92 0-2.22 1.5-2.22 3.05V21H9V9Z' },
+  { label: 'X', href: '#', d: 'M17.5 3h3.2l-7 8 8.2 10h-6.4l-5-6.1L8 21H4.8l7.5-8.6L4.5 3h6.6l4.5 5.6L17.5 3Zm-1.1 16h1.8L7.7 4.8H5.8L16.4 19Z' },
+  { label: 'Instagram', href: '#', d: 'M12 7.2a4.8 4.8 0 1 0 0 9.6 4.8 4.8 0 0 0 0-9.6Zm0 7.9a3.1 3.1 0 1 1 0-6.2 3.1 3.1 0 0 1 0 6.2ZM17 5.8a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3ZM12 4.6c2.4 0 2.7.01 3.6.05 2.5.12 3.66 1.3 3.77 3.77.04.9.05 1.2.05 3.58s-.01 2.67-.05 3.58c-.11 2.46-1.27 3.66-3.77 3.77-.9.04-1.2.05-3.6.05s-2.7-.01-3.6-.05c-2.5-.12-3.66-1.32-3.77-3.77C4.6 14.67 4.6 14.37 4.6 12s.01-2.67.05-3.58C4.76 5.95 5.92 4.77 8.4 4.65 9.3 4.61 9.6 4.6 12 4.6Z' },
+];
+
+const FOOTER_COLS = [
+  { title: 'Produto', links: [['Solução', '#solucao'], ['Como funciona', '#como'], ['Instalar', '#instalar'], ['Entrar', '/admin']] },
+  { title: 'Recursos', links: [['Perguntas', '#faq'], ['Documentação', '#'], ['Estado do serviço', '#']] },
+  { title: 'Empresa', links: [['Contacto', '#'], ['Privacidade', '#'], ['Termos', '#']] },
+];
+
 function Footer() {
   return (
-    <footer className="border-t border-ink-100 bg-white px-5 py-10">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 sm:flex-row sm:justify-between">
-        <Logo size={34} />
-        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[14px] font-medium text-ink-500">
-          <a href="#solucao" className="transition-colors hover:text-brand-600">Solução</a>
-          <a href="#como" className="transition-colors hover:text-brand-600">Como funciona</a>
-          <a href="#faq" className="transition-colors hover:text-brand-600">Perguntas</a>
-          <a href="#" className="transition-colors hover:text-brand-600">Privacidade</a>
-          <a href="#" className="transition-colors hover:text-brand-600">Contacto</a>
-        </nav>
+    <footer className="relative overflow-hidden bg-ink-900 px-5 pb-8 pt-16">
+      <div className="pointer-events-none absolute -top-24 left-1/2 h-56 w-[60rem] -translate-x-1/2 rounded-full bg-brand-500/10 blur-[120px]" aria-hidden />
+      <div className="relative mx-auto max-w-6xl">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.7fr_1fr_1fr_1fr]">
+          {/* Marca */}
+          <div className="max-w-xs">
+            <img src="/kyvo-logo-white.png" alt="Kyvo" className="h-8 w-auto select-none" draggable={false} />
+            <p className="mt-4 text-[14.5px] leading-relaxed text-ink-300">
+              O agente de vendas com IA que responde a cada visitante e capta os contactos por si, 24/7.
+            </p>
+            <div className="mt-5 flex gap-2.5">
+              {SOCIAL.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  aria-label={s.label}
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-ink-300 transition-colors hover:border-white/25 hover:bg-white/10 hover:text-white"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-[18px] w-[18px]"><path d={s.d} /></svg>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Colunas de links */}
+          {FOOTER_COLS.map((c) => (
+            <div key={c.title}>
+              <h3 className="text-[13px] font-semibold text-white">{c.title}</h3>
+              <ul className="mt-4 space-y-3">
+                {c.links.map(([label, href]) => (
+                  <li key={label}>
+                    <a href={href} className="text-[14px] text-ink-300 transition-colors hover:text-white">{label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 flex flex-col items-center gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-start sm:gap-5">
+          <p className="text-[13px] text-ink-400">© {new Date().getFullYear()} Kyvo · o seu agente de vendas personalizado.</p>
+          <span className="hidden h-4 w-px bg-white/15 sm:block" aria-hidden />
+          <div className="flex items-center gap-2 text-[13px] text-ink-400">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/70 motion-reduce:hidden" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            </span>
+            Todos os sistemas operacionais
+          </div>
+        </div>
       </div>
-      <p className="mx-auto mt-6 max-w-6xl text-center text-[13px] text-ink-400 sm:text-left">
-        © Closr · o seu agente de vendas personalizado.
-      </p>
     </footer>
+  );
+}
+
+/* ---------- Showcase do backoffice (mockup do painel) ---------- */
+function Showcase() {
+  const stats = [['128', 'Leads este mês'], ['1.4k', 'Conversas'], ['24/7', 'Sempre ativo']];
+  const leads = [
+    { n: 'Marta Silva', e: 'marta@loja.pt', s: 'Novo', tone: 'new' },
+    { n: 'João Costa', e: 'joao.costa@gmail.com', s: 'Contactado', tone: 'mid' },
+    { n: 'Inês Ramos', e: 'ines@studio.pt', s: 'Novo', tone: 'new' },
+    { n: 'Pedro Nunes', e: 'pedro@empresa.pt', s: 'Proposta', tone: 'done' },
+  ];
+  const badge = {
+    new: 'bg-brand-50 text-brand-700',
+    mid: 'bg-amber-50 text-amber-700',
+    done: 'bg-emerald-50 text-emerald-700',
+  };
+  return (
+    <section className="relative overflow-hidden bg-surface px-5 py-24">
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-80 w-[55rem] -translate-x-1/2 rounded-full bg-brand-200/35 blur-[120px]" aria-hidden />
+      <div className="relative mx-auto max-w-6xl">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-[2rem] font-bold tracking-tight text-ink-900 sm:text-[2.8rem] sm:leading-[1.06]">
+            Os leads aparecem todos no <span className="text-brand-600">seu painel</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-600">
+            Veja quem o agente captou, configure o que ele diz e acompanhe as conversas, tudo num só sítio.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.1} className="mt-12">
+          <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-lift">
+            {/* barra da janela */}
+            <div className="flex items-center gap-2 border-b border-ink-100 bg-ink-50/70 px-4 py-2.5">
+              <span className="h-3 w-3 rounded-full bg-red-300" />
+              <span className="h-3 w-3 rounded-full bg-amber-300" />
+              <span className="h-3 w-3 rounded-full bg-emerald-300" />
+              <span className="ml-3 rounded-md border border-ink-100 bg-white px-2.5 py-0.5 text-[11px] text-ink-400">app.kyvo · Leads</span>
+            </div>
+            <div className="grid sm:grid-cols-[160px_1fr]">
+              {/* sidebar */}
+              <div className="hidden border-r border-ink-100 p-3 sm:block">
+                <img src="/kyvo-logo.png" alt="Kyvo" className="mb-3 h-5 w-auto pl-1" />
+                {['Agentes', 'Leads', 'Conversas', 'Conta'].map((x, i) => (
+                  <div key={x} className={`rounded-lg px-2.5 py-1.5 text-[12.5px] ${i === 1 ? 'bg-brand-50 font-semibold text-brand-700' : 'text-ink-500'}`}>{x}</div>
+                ))}
+              </div>
+              {/* conteúdo */}
+              <div className="p-5">
+                <div className="grid grid-cols-3 gap-3">
+                  {stats.map(([v, l]) => (
+                    <div key={l} className="rounded-xl border border-ink-100 p-3">
+                      <div className="text-xl font-bold text-ink-900 tabular-nums">{v}</div>
+                      <div className="text-[11px] text-ink-400">{l}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 overflow-hidden rounded-xl border border-ink-100">
+                  <table className="w-full text-left text-[12.5px]">
+                    <thead className="bg-ink-50/70 text-ink-400">
+                      <tr><th className="px-3 py-2 font-medium">Nome</th><th className="px-3 py-2 font-medium">Email</th><th className="px-3 py-2 font-medium">Estado</th></tr>
+                    </thead>
+                    <tbody>
+                      {leads.map((l) => (
+                        <tr key={l.e} className="border-t border-ink-50">
+                          <td className="px-3 py-2.5">
+                            <span className="flex items-center gap-2">
+                              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-50 text-[10px] font-bold text-brand-700">{l.n[0]}</span>
+                              <span className="font-medium text-ink-800">{l.n}</span>
+                            </span>
+                          </td>
+                          <td className="px-3 py-2.5 text-ink-500">{l.e}</td>
+                          <td className="px-3 py-2.5"><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge[l.tone]}`}>{l.s}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Prova social (logótipos de clientes) ----------
+   NOTA: estes são PLACEHOLDERS. Substituir por logótipos reais (SVG/PNG em
+   /public) quando existirem — é o elemento que mais constrói credibilidade. */
+function SocialProof() {
+  const clients = [
+    { name: 'Nordina', cls: 'font-display font-extrabold tracking-tight' },
+    { name: 'loja&co', cls: 'lowercase font-semibold' },
+    { name: 'AURORA', cls: 'font-bold tracking-[0.2em]' },
+    { name: 'Próxima·', cls: 'font-display font-bold' },
+    { name: 'Estúdio M', cls: 'font-medium italic' },
+    { name: 'VENDA+', cls: 'font-extrabold tracking-tight' },
+  ];
+  return (
+    <section className="border-b border-ink-100 bg-white px-5 py-11">
+      <div className="mx-auto max-w-6xl">
+        <p className="text-center text-[12px] font-semibold uppercase tracking-[0.18em] text-ink-400">
+          Equipas que já vendem mais com o Kyvo
+        </p>
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-12 gap-y-5">
+          {clients.map((c) => (
+            <span key={c.name} className={`text-[21px] text-ink-300 transition-colors hover:text-ink-500 ${c.cls}`}>
+              {c.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -776,10 +1065,12 @@ export default function Landing() {
       <Nav />
       <main>
         <Hero />
+        <SocialProof />
         <Problem />
         <Difference />
         <Steps />
         <Features />
+        <Showcase />
         <Impact />
         <Install />
         <Testimonials />
