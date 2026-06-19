@@ -84,8 +84,12 @@ export default async function handler(req, res) {
   if (mode === 'search') {
     let reply = '';
     if (lastUserMsg.trim()) {
+      // Pesquisa tolerante: QUALQUER palavra significativa (OR), não todas (AND),
+      // para que perguntas naturais ("Qual é o horário?") encontrem o conhecimento.
+      const terms = lastUserMsg.trim().split(/\s+/).filter((w) => w.length > 2);
+      const q = terms.length ? terms.join(' or ') : lastUserMsg.trim();
       const { data: hits } = await supabaseAdmin.rpc('search_knowledge', {
-        p_bot_id: bot.id, q: lastUserMsg, match_count: 2,
+        p_bot_id: bot.id, q, match_count: 2,
       });
       if (hits && hits.length) {
         reply = hits.map((h) => h.content.trim()).join('\n\n').slice(0, 1200);

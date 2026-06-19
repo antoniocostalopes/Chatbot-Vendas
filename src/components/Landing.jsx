@@ -591,13 +591,25 @@ function Steps() {
 }
 
 /* ---------- Capacidades (bento assimétrico) ---------- */
+// Moldura de tile do bento (visual consistente, conteúdo livre).
+function Tile({ className = '', children }) {
+  return (
+    <div className={`group flex h-full flex-col rounded-3xl border border-ink-100 bg-white p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift ${className}`}>
+      {children}
+    </div>
+  );
+}
+function TileIcon({ icon: I }) {
+  return (
+    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-grad-brand text-white transition-transform duration-300 group-hover:scale-110">
+      <I className="h-[22px] w-[22px]" />
+    </span>
+  );
+}
+const IconGlobe = (p) => (<svg viewBox="0 0 24 24" {...p} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18Z" /></svg>);
+const IconDoc = (p) => (<svg viewBox="0 0 24 24" {...p} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" /><path d="M14 3v5h5" /></svg>);
+
 function Features() {
-  const features = [
-    { icon: Icon.shield, t: 'Treinado nos seus produtos', d: 'Conhece o seu catálogo e responde como um vendedor da sua equipa, com o tom de voz da marca.', big: true },
-    { icon: Icon.chat, t: 'Qualifica e capta leads', d: 'Faz as perguntas certas e recolhe contactos prontos a fechar.', big: false },
-    { icon: Icon.bolt, t: 'Disponível 24/7', d: 'Atende cada visitante de imediato, em qualquer dispositivo.', big: false },
-    { icon: Icon.send, t: 'Integra em minutos', d: 'Um snippet no seu site e o agente começa a vender, sem código, em qualquer plataforma.', big: true },
-  ];
   return (
     <section id="produtos" className="px-5 py-24">
       <div className="mx-auto max-w-6xl">
@@ -610,22 +622,80 @@ function Features() {
           </p>
         </Reveal>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-6">
-          {features.map((f, i) => (
-            <Reveal
-              key={f.t}
-              delay={i * 0.08}
-              className={f.big ? 'md:col-span-4' : 'md:col-span-2'}
-            >
-              <div className="group flex h-full flex-col rounded-3xl border border-ink-100 bg-white p-7 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-grad-brand text-white transition-transform duration-300 group-hover:scale-110">
-                  <f.icon className="h-6 w-6" />
-                </span>
-                <h3 className="mt-5 text-xl font-semibold text-ink-900">{f.t}</h3>
-                <p className="mt-2 max-w-md text-[15px] leading-relaxed text-ink-600">{f.d}</p>
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          {/* Treinado nos seus produtos (grande, com fontes de conhecimento) */}
+          <Reveal className="sm:col-span-2 lg:col-span-4">
+            <Tile>
+              <TileIcon icon={Icon.shield} />
+              <h3 className="mt-5 text-xl font-semibold text-ink-900">Treinado nos seus produtos</h3>
+              <p className="mt-2 max-w-md text-[15px] leading-relaxed text-ink-600">
+                Carregue o catálogo, a FAQ ou o próprio site. O agente responde como um vendedor da sua equipa, com o tom de voz da marca.
+              </p>
+              <div className="mt-6 grid grid-cols-2 gap-2 sm:max-w-md">
+                {[['catálogo.pdf', IconDoc], ['loja.pt/produtos', IconGlobe], ['perguntas frequentes', Icon.chat], ['tabela de preços', IconDoc]].map(([label, Ic]) => (
+                  <div key={label} className="flex items-center gap-2 rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-[12.5px] font-medium text-ink-600">
+                    <Ic className="h-4 w-4 shrink-0 text-brand-500" /><span className="truncate">{label}</span>
+                  </div>
+                ))}
               </div>
-            </Reveal>
-          ))}
+            </Tile>
+          </Reveal>
+
+          {/* 24/7 */}
+          <Reveal delay={0.05} className="lg:col-span-2">
+            <Tile>
+              <TileIcon icon={Icon.bolt} />
+              <div className="mt-5 font-display text-4xl font-extrabold tracking-tight text-ink-900">24/7</div>
+              <h3 className="mt-1 text-[17px] font-semibold text-ink-900">Sempre a responder</h3>
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-600">Atende cada visitante de imediato, mesmo fora de horas.</p>
+              <div className="mt-auto flex items-center gap-2 pt-5 text-[13px] font-medium text-emerald-600">
+                <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/70 motion-reduce:hidden" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" /></span>
+                Sempre online
+              </div>
+            </Tile>
+          </Reveal>
+
+          {/* Qualifica e capta leads */}
+          <Reveal delay={0.05} className="lg:col-span-2">
+            <Tile>
+              <TileIcon icon={Icon.chat} />
+              <h3 className="mt-5 text-[17px] font-semibold text-ink-900">Qualifica e capta leads</h3>
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-600">Faz as perguntas certas e recolhe o contacto.</p>
+              <div className="mt-auto flex items-center gap-2.5 rounded-xl border border-ink-100 bg-white px-3 py-2.5 shadow-sm">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-grad-brand text-[12px] font-semibold text-white">M</span>
+                <div className="min-w-0 flex-1"><div className="text-[13px] font-medium text-ink-900">Marta Silva</div><div className="truncate text-[11.5px] text-ink-400">marta@loja.pt</div></div>
+                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700">Novo</span>
+              </div>
+            </Tile>
+          </Reveal>
+
+          {/* Integra em minutos */}
+          <Reveal delay={0.1} className="lg:col-span-2">
+            <Tile>
+              <TileIcon icon={Icon.send} />
+              <h3 className="mt-5 text-[17px] font-semibold text-ink-900">Integra em minutos</h3>
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-600">Uma linha no site e o agente começa a vender. Sem programar.</p>
+              <div className="mt-auto overflow-x-auto rounded-xl border border-ink-800 bg-ink-900 px-3 py-2.5">
+                <code className="whitespace-nowrap font-mono text-[11.5px] leading-none text-ink-200">
+                  <span className="text-brand-300">&lt;script</span> src=<span className="text-emerald-300">"kyvo.js"</span> <span className="text-brand-300">/&gt;</span>
+                </code>
+              </div>
+            </Tile>
+          </Reveal>
+
+          {/* Fala a língua do cliente */}
+          <Reveal delay={0.15} className="lg:col-span-2">
+            <Tile>
+              <TileIcon icon={IconGlobe} />
+              <h3 className="mt-5 text-[17px] font-semibold text-ink-900">Fala a língua do cliente</h3>
+              <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-600">Responde no idioma de cada visitante.</p>
+              <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
+                {['Português', 'English', 'Español', 'Français'].map((l) => (
+                  <span key={l} className="rounded-full border border-ink-100 bg-ink-50/60 px-2.5 py-1 text-[12px] font-medium text-ink-600">{l}</span>
+                ))}
+              </div>
+            </Tile>
+          </Reveal>
         </div>
 
         <Reveal delay={0.1} className="mt-12 text-center">
@@ -945,20 +1015,13 @@ function Footer() {
   );
 }
 
-/* ---------- Showcase do backoffice (mockup do painel) ---------- */
+/* ---------- Showcase do backoffice (foto real do painel) ---------- */
 function Showcase() {
-  const stats = [['128', 'Leads este mês'], ['1.4k', 'Conversas'], ['24/7', 'Sempre ativo']];
-  const leads = [
-    { n: 'Marta Silva', e: 'marta@loja.pt', s: 'Novo', tone: 'new' },
-    { n: 'João Costa', e: 'joao.costa@gmail.com', s: 'Contactado', tone: 'mid' },
-    { n: 'Inês Ramos', e: 'ines@studio.pt', s: 'Novo', tone: 'new' },
-    { n: 'Pedro Nunes', e: 'pedro@empresa.pt', s: 'Proposta', tone: 'done' },
+  const highlights = [
+    [Icon.target, 'Vê a origem de cada lead'],
+    [Icon.chat, 'Filtra por agente'],
+    [Icon.bolt, 'Atualizado em tempo real'],
   ];
-  const badge = {
-    new: 'bg-brand-50 text-brand-700',
-    mid: 'bg-amber-50 text-amber-700',
-    done: 'bg-emerald-50 text-emerald-700',
-  };
   return (
     <section className="relative overflow-hidden bg-surface px-5 py-24">
       <div className="pointer-events-none absolute left-1/2 top-1/3 h-80 w-[55rem] -translate-x-1/2 rounded-full bg-brand-200/35 blur-[120px]" aria-hidden />
@@ -968,12 +1031,12 @@ function Showcase() {
             Os leads aparecem todos no <span className="text-brand-600">seu painel</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-ink-600">
-            Veja quem o agente captou, configure o que ele diz e acompanhe as conversas, tudo num só sítio.
+            Veja quem o agente captou, de que agente veio e o que procura, tudo num só sítio.
           </p>
         </Reveal>
 
         <Reveal delay={0.1} className="mt-12">
-          <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-lift">
+          <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-lift ring-1 ring-ink-900/5">
             {/* barra da janela */}
             <div className="flex items-center gap-2 border-b border-ink-100 bg-ink-50/70 px-4 py-2.5">
               <span className="h-3 w-3 rounded-full bg-red-300" />
@@ -981,48 +1044,18 @@ function Showcase() {
               <span className="h-3 w-3 rounded-full bg-emerald-300" />
               <span className="ml-3 rounded-md border border-ink-100 bg-white px-2.5 py-0.5 text-[11px] text-ink-400">app.kyvo · Leads</span>
             </div>
-            <div className="grid sm:grid-cols-[160px_1fr]">
-              {/* sidebar */}
-              <div className="hidden border-r border-ink-100 p-3 sm:block">
-                <img src="/kyvo-wordmark.png" alt="Kyvo" className="mb-3 h-4 w-auto pl-1" />
-                {['Agentes', 'Leads', 'Conversas', 'Conta'].map((x, i) => (
-                  <div key={x} className={`rounded-lg px-2.5 py-1.5 text-[12.5px] ${i === 1 ? 'bg-brand-50 font-semibold text-brand-700' : 'text-ink-500'}`}>{x}</div>
-                ))}
-              </div>
-              {/* conteúdo */}
-              <div className="p-5">
-                <div className="grid grid-cols-3 gap-3">
-                  {stats.map(([v, l]) => (
-                    <div key={l} className="rounded-xl border border-ink-100 p-3">
-                      <div className="text-xl font-bold text-ink-900 tabular-nums">{v}</div>
-                      <div className="text-[11px] text-ink-400">{l}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 overflow-hidden rounded-xl border border-ink-100">
-                  <table className="w-full text-left text-[12.5px]">
-                    <thead className="bg-ink-50/70 text-ink-400">
-                      <tr><th className="px-3 py-2 font-medium">Nome</th><th className="px-3 py-2 font-medium">Email</th><th className="px-3 py-2 font-medium">Estado</th></tr>
-                    </thead>
-                    <tbody>
-                      {leads.map((l) => (
-                        <tr key={l.e} className="border-t border-ink-50">
-                          <td className="px-3 py-2.5">
-                            <span className="flex items-center gap-2">
-                              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-50 text-[10px] font-bold text-brand-700">{l.n[0]}</span>
-                              <span className="font-medium text-ink-800">{l.n}</span>
-                            </span>
-                          </td>
-                          <td className="px-3 py-2.5 text-ink-500">{l.e}</td>
-                          <td className="px-3 py-2.5"><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge[l.tone]}`}>{l.s}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+            {/* foto real do backoffice */}
+            <img src="/backoffice-leads.png" alt="Painel de leads do Kyvo, com a origem de cada contacto" className="block w-full" loading="lazy" />
           </div>
+        </Reveal>
+
+        <Reveal delay={0.15} className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          {highlights.map(([Ic, label]) => (
+            <span key={label} className="inline-flex items-center gap-2 text-[14px] font-medium text-ink-600">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand-50 text-brand-600"><Ic className="h-4 w-4" /></span>
+              {label}
+            </span>
+          ))}
         </Reveal>
       </div>
     </section>
@@ -1033,27 +1066,15 @@ function Showcase() {
    NOTA: estes são PLACEHOLDERS. Substituir por logótipos reais (SVG/PNG em
    /public) quando existirem — é o elemento que mais constrói credibilidade. */
 function SocialProof() {
-  const clients = [
-    { name: 'Nordina', cls: 'font-display font-extrabold tracking-tight' },
-    { name: 'loja&co', cls: 'lowercase font-semibold' },
-    { name: 'AURORA', cls: 'font-bold tracking-[0.2em]' },
-    { name: 'Próxima·', cls: 'font-display font-bold' },
-    { name: 'Estúdio M', cls: 'font-medium italic' },
-    { name: 'VENDA+', cls: 'font-extrabold tracking-tight' },
-  ];
+  const trust = ['Conforme o RGPD', 'Dados encriptados', 'Sem cartão para experimentar', 'Instala numa linha de código'];
   return (
-    <section className="border-b border-ink-100 bg-white px-5 py-11">
-      <div className="mx-auto max-w-6xl">
-        <p className="text-center text-[12px] font-semibold uppercase tracking-[0.18em] text-ink-400">
-          Equipas que já vendem mais com o Kyvo
-        </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-12 gap-y-5">
-          {clients.map((c) => (
-            <span key={c.name} className={`text-[21px] text-ink-300 transition-colors hover:text-ink-500 ${c.cls}`}>
-              {c.name}
-            </span>
-          ))}
-        </div>
+    <section className="border-b border-ink-100 bg-white px-5 py-7">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-8 gap-y-3">
+        {trust.map((t) => (
+          <span key={t} className="inline-flex items-center gap-2 text-[14px] font-medium text-ink-500">
+            <Icon.check className="h-[18px] w-[18px] text-brand-500" />{t}
+          </span>
+        ))}
       </div>
     </section>
   );
